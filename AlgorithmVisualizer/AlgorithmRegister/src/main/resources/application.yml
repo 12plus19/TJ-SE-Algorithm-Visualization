@@ -1,0 +1,9 @@
+# 端口号为8090（默认也是8090）
+server:
+  port: 8090
+
+# 禁止注册自己
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false

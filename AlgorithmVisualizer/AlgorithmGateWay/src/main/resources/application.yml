@@ -1,0 +1,57 @@
+server:
+  port: 10020
+  address: 0.0.0.0
+# 应用名称：client
+spring:
+  application:
+    name: AlgorithmGateWay
+  cloud:
+    gateway:
+        routes:
+          - id: userService
+            uri: http://localhost:8091
+            predicates:
+              - Path=/user/**
+            filters:
+              - StripPrefix=0
+          - id: algorithmService
+            uri: http://localhost:8092
+            predicates:
+              - Path=/algorithm/**
+            filters:
+              - StripPrefix=0
+          - id: exerciseService
+            uri: http://localhost:8093
+            predicates:
+              - Path=/exercise/**
+            filters:
+              - StripPrefix=0
+          - id: learningProgressService
+            uri: http://localhost:8094
+            predicates:
+              - Path=/learningProgress/**
+            filters:
+              - StripPrefix=0
+          - id: codeService
+            uri: http://localhost:8095
+            predicates:
+              - Path=/code/**
+            filters:
+              - StripPrefix=0
+          - id: algorithmGradeService
+            uri: http://localhost:8096
+            predicates:
+              - Path=/algorithmGrade/**
+            filters:
+              - StripPrefix=0
+          - id: commentService
+            uri: http://localhost:8097
+            predicates:
+              - Path=/comment/**
+            filters:
+              - StripPrefix=0
+# 注册到我们本地的eureka注册中心，端口是8080
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8090/eureka/
