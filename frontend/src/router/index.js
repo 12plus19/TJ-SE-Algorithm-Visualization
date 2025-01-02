@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '@/components/User/LoginPage.vue';
 import RegisterPage from '@/components/User/RegisterPage.vue'; 
 import ChangePasswordPage from '@/components/User/ChangePasswordPage.vue';
-import AlgorithmDetail from '@/components/Algorithm/AlgorithmDetail.vue';  
+import AlgorithmDetail from '@/components/AlgorithmMessage/AlgorithmDetail.vue';  
 
 const routes = [
   {

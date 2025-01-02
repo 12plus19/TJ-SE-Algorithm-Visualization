@@ -16,17 +16,24 @@
 
 <script>
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
 export default {
+    name: 'AlgorithmDetail',
     setup() {
         const algorithmId = ref('');
         const algorithmInfo = ref(null);
 
         const fetchAlgorithmInfo = async () => {
             try {
+                const userToken = localStorage.getItem('userToken');
+                if (!userToken) {
+                    alert('请先登录');
+                    return;
+                }
                 const response = await axios.get(`http://121.43.120.166:10020/algorithm/info/${algorithmId.value}`, {
                     headers: {
-                        Authorization: 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJhNjJkODM0Ni1hMmExLTRlNjAtOGJjYS03Yjk4ZTViM2IxOTUiLCJleHAiOjE3MzUzNDE4Njh9.ZMh_JiZAhjFJI6qpstdAjgEymLmjEVEsxTdgbu9kTVU',
+                        Authorization: `Bearer ${userToken}`,
                     },
                 });
                 algorithmInfo.value = response.data;
@@ -34,6 +41,12 @@ export default {
                 console.error('Error fetching algorithm info:', error);
             }
         };
+
+        onMounted(() => {
+            // 如果需要在页面加载时自动填充算法ID，可以在这里设置
+            algorithmId.value = '1'; // 替换为实际的默认算法ID
+            fetchAlgorithmInfo();
+        });
 
         return {
             algorithmId,
@@ -75,4 +88,3 @@ export default {
     margin-top: 0;
 }
 </style>
-/* Add any additional styles here */
