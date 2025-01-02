@@ -1,4 +1,7 @@
 <template>
+    <div class="fetch-all-button">
+        <button class="fetch-all-button" @click="fetchAllAlgorithms">获取所有算法信息</button>
+    </div>
     <div class="algorithm-detail">
         <div class="search-bar">
             <input v-model="algorithmId" placeholder="请输入算法ID" />
@@ -10,6 +13,17 @@
             <p><strong>算法名称:</strong> {{ algorithmInfo.algorithmName }}</p>
             <p><strong>算法描述:</strong> {{ algorithmInfo.description }}</p>
             <p><strong>算法难度:</strong> {{ algorithmInfo.difficultyLevel }}</p>
+        </div>
+        <div  class="algorithm-info">
+            <h2>所有算法信息</h2>
+            <ul>
+                <li v-for="algorithm in allAlgorithms" :key="algorithm.algorithmId">
+                    <p><strong>算法ID:</strong> {{ algorithm.algorithmId }}</p>
+                    <p><strong>算法名称:</strong> {{ algorithm.algorithmName }}</p>
+                    <p><strong>算法描述:</strong> {{ algorithm.description }}</p>
+                    <p><strong>算法难度:</strong> {{ algorithm.difficultyLevel }}</p>
+                </li>
+            </ul>
         </div>
     </div>
 </template>
@@ -23,6 +37,7 @@ export default {
     setup() {
         const algorithmId = ref('');
         const algorithmInfo = ref(null);
+        const allAlgorithms = ref([]);
 
         const fetchAlgorithmInfo = async () => {
             try {
@@ -31,9 +46,10 @@ export default {
                     alert('请先登录');
                     return;
                 }
+                console.log('Using token:', userToken); // 添加调试信息
                 const response = await axios.get(`http://121.43.120.166:10020/algorithm/info/${algorithmId.value}`, {
                     headers: {
-                        Authorization: `Bearer ${userToken}`,
+                        Authorization: userToken,
                     },
                 });
                 algorithmInfo.value = response.data;
@@ -42,16 +58,37 @@ export default {
             }
         };
 
+        const fetchAllAlgorithms = async () => {
+            try {
+                const userToken = localStorage.getItem('userToken');
+                if (!userToken) {
+                    alert('请先登录');
+                    return;
+                }
+                // console.log('Using token:', userToken); // 添加调试信息
+                const response = await axios.get('http://121.43.120.166:10020/algorithm/all', {
+                    headers: {
+                        Authorization: userToken,
+                    },
+                });
+                console.log('Data:', response.data); // 添加调试信息
+                allAlgorithms.value = response.data;
+                // console.log('All algorithms:', allAlgorithms.value); // 添加调试信息
+                console.log(allAlgorithms)
+            } catch (error) {
+                console.error('Error fetching all algorithms:', error);
+            }
+        };
+
         onMounted(() => {
-            // 如果需要在页面加载时自动填充算法ID，可以在这里设置
-            algorithmId.value = '1'; // 替换为实际的默认算法ID
-            fetchAlgorithmInfo();
+            fetchAllAlgorithms();
         });
 
         return {
             algorithmId,
             algorithmInfo,
             fetchAlgorithmInfo,
+            fetchAllAlgorithms,
         };
     },
 };
@@ -75,7 +112,23 @@ export default {
 }
 
 .search-bar button {
-    padding: 8px 16px;
+    width: 10%;
+  padding: 10px;
+  background-color: #409eff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.fetch-all-button button {
+    width: 15%;
+  padding: 10px;
+  background-color: #409eff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 .algorithm-info {

@@ -53,9 +53,10 @@ export default {
 
         // 根据需求处理响应
         if (response.status === 200) {
-          const token = response.data.token;
+          const token = response.data;
           localStorage.setItem('userToken', token);
-          alert('登录成功');
+          alert('登录成功', token);
+          console.log('登录成功:', token);
           router.push('/algorithm-detail');
         } else {
           console.error('登录失败:', response.data);
