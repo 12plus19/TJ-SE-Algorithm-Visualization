@@ -55,6 +55,7 @@ export default {
         if (response.status === 200) {
           const token = response.headers['authorization'];
           localStorage.setItem('userToken', token);
+          localStorage.setItem('algorithmId', '1');
           alert('登录成功', token);
           console.log('登录成功:', token);
           router.push('/algorithm-message');
