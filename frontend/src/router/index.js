@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '@/components/User/LoginPage.vue';
 import RegisterPage from '@/components/User/RegisterPage.vue'; 
 import ChangePasswordPage from '@/components/User/ChangePasswordPage.vue';
-import AlgorithmDetail from '@/components/AlgorithmMessage/AlgorithmDetail.vue';  
 import AlgorithmVisual1 from '@/components/AlgorithmVisual/AlgorithmVisual1.vue';
 import AlgorithmVisual2 from '@/components/AlgorithmVisual/AlgorithmVisual2.vue';
 import AlgorithmVisual3 from '@/components/AlgorithmVisual/AlgorithmVisual3.vue';
@@ -26,11 +25,6 @@ const routes = [
     path: '/change-password',
     name: 'ChangePassword',
     component: ChangePasswordPage
-  },
-  {
-    path: '/algorithm-detail',
-    name: 'AlgorithmDetail',
-    component: AlgorithmDetail
   },
   {
     path: '/algorithm-visual1',
