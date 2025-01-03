@@ -57,7 +57,7 @@ export default {
           localStorage.setItem('userToken', token);
           alert('登录成功', token);
           console.log('登录成功:', token);
-          router.push('/algorithm-detail');
+          router.push('/algorithm-message');
         } else {
           console.error('登录失败:', response.data);
           alert('登录失败，请重试');

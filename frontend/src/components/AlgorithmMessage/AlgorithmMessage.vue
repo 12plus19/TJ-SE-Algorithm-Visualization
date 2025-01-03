@@ -18,12 +18,12 @@
             <h2>所有算法</h2>
             <ul>
                 <li v-for="algorithm in algorithms" :key="algorithm.algorithmId" class="algorithm-item">
-                    <div class="algorithm-info" style="margin-bottom: 20px;">
+                    <div class="algorithm-info" style="margin-bottom: 20px; position: relative;">
                         <p><strong>算法ID:</strong> {{ algorithm.algorithmId }}</p>
                         <p><strong>算法名称:</strong> {{ algorithm.algorithmName }}</p>
-                        <!-- <button class="fetch-all-button" @click="goToAlgorithmDetail(algorithm.algorithmId)">查看详情</button> -->
-                        <!-- <p><strong>算法描述:</strong> {{ algorithm.description }}</p> -->
                         <p><strong>算法难度:</strong> {{ algorithm.difficultyLevel }}</p>
+                        <button class="detail-button" @click="goToAlgorithmVisual(algorithm.algorithmId)" style="position: absolute; bottom: 10px; right: 10px;">查看详情</button>
+                    
                     </div>
                 </li>
             </ul>
@@ -34,11 +34,12 @@
 <script>
 import axios from 'axios';
 import { ref, onMounted, computed } from 'vue';
-// import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 export default {
     name: 'AlgorithmDetail',
     setup() {
+        const router = useRouter();
         const algorithmId = ref('');
         const algorithmInfo = ref(null);
         const allAlgorithms = ref([{ algorithmId: 0, algorithmName: '', description: '', difficultyLevel: '' }]);
@@ -95,9 +96,23 @@ export default {
             }
         };
 
-        // const goToAlgorithmDetail = () => {
-        //     router.push(`/algorithm-visual`);
-        // };
+        const goToAlgorithmVisual = (algorithmId) => {
+            let routeName = '';
+            switch (algorithmId) {
+                case '1':
+                    routeName = 'AlgorithmVisual1';
+                    break;
+                case '2':
+                    routeName = 'AlgorithmVisual2';
+                    break;
+                case '3':
+                    routeName = 'AlgorithmVisual3';
+                    break;
+                default:
+                    routeName = 'AlgorithmVisual1'; // 默认页面
+            }
+            router.push({ name: routeName, params: { name: algorithmId } });
+        };
 
         onMounted(() => {
             fetchAllAlgorithms();
@@ -111,7 +126,7 @@ export default {
             algorithms,
             showAllAlgorithms,
             showAlgorithmInfo,
-            // goToAlgorithmDetail,
+            goToAlgorithmVisual,
         };
     },
 };
@@ -163,4 +178,17 @@ export default {
 .algorithm-info h2 {
     margin-top: 0;
 }
+.detail-button {
+                        padding: 10px 20px;
+                        background-color: #67c23a;
+                        color: white;
+                        border: none;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        transition: background-color 0.3s ease;
+                    }
+
+                    .detail-button:hover {
+                        background-color: #5daf34;
+                    }
 </style>
