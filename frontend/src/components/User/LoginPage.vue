@@ -56,8 +56,8 @@ export default {
           const token = response.headers['authorization'];
           const userId = response.data.userId;
 
-
-
+          localStorage.setItem('userToken', token);
+          localStorage.setItem('userId', userId);
           localStorage.setItem('algorithmId', '1');
           alert('登录成功', token);
           console.log('userId:', userId);

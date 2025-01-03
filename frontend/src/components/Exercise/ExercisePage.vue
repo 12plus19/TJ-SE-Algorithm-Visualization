@@ -125,6 +125,8 @@
       const fetchQuestions = async () => {
         const algorithmId = localStorage.getItem('algorithmId');
         const token = localStorage.getItem('userToken');
+        console.log('获取题目时的token:', token); // debug输出
+        console.log('获取题目时的algorithmId:', algorithmId); // debug输出
   
         try {
           const response = await axios.get(

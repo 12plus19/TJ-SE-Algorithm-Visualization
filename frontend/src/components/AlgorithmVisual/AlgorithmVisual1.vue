@@ -4,7 +4,7 @@
             <div style="display: flex; align-items: center; width: 100%;">
                 <div style="flex: 1;">
                     <button class="info-btn" style="padding: 10px 20px; margin-right: 10px;" @click="goToAlgorithmMessage()"><strong>详细信息</strong></button>
-                    <button class="info-btn" style="padding: 10px 20px;" @click="goToUserInfo()"><strong>练习题</strong></button>
+                    <button class="info-btn" style="padding: 10px 20px;" @click="goToExercise()"><strong>练习题</strong></button>
                 </div>
                 <div style="flex: 2; text-align: center;">
                     <h1>算法可视化平台</h1>
@@ -16,31 +16,50 @@
         </header>
         <main>
             <aside class="algorithm-list">
-                <ul>
-                    <li v-for="algorithm in computedAlgorithms" :key="algorithm.algorithmName">
-                        <p @click="goToAlgorithmPage(algorithm.algorithmName)"><strong>{{ algorithm.algorithmName }}</strong></p>
-                    </li>
-                    
-                </ul>
+            <ul>
+                <li v-for="algorithm in computedAlgorithms" :key="algorithm.algorithmName">
+                <p @click="goToAlgorithmPage(algorithm.algorithmName)"><strong>{{ algorithm.algorithmName }}</strong></p>
+                </li>
+            </ul>
             </aside>
             <section class="visualization-area">
-                <!-- 可视化区域 -->
+            <!-- 可视化区域 -->
             </section>
             <section class="code-area">
-                <!-- 可视化区域 -->
+            <!-- 可视化区域 -->
             </section>
             <section class="rating-area">
-                <label for="rating">评分:</label>
-                <input type="range" id="rating" v-model="rating" min="0" max="100" step="1" style="writing-mode: bt-lr; height: 200px;">
-                <p>当前评分: {{ rating }}</p>
+            <label for="rating">评分:</label>
+            <input type="range" id="rating" v-model="rating" min="0" max="100" step="1" style="writing-mode: bt-lr; height: 200px;">
+            <p>当前评分: {{ rating }}</p>
             </section>
-        <section class="save-button-area">
+            <section class="save-button-area">
             <button @click="saveRating">保存评分</button>
-        </section>
+            </section>
         </main>
         <footer>
             <div class="forum">
-                <!-- 论坛 -->
+                <h2>论坛</h2>
+
+                <button class="add-comment-btn" @click="showCommentModal = true">+</button>
+                <modal v-if="showCommentModal" @close="showCommentModal = false">
+                    <template v-slot:header>
+                        <h3>添加评论</h3>
+                    </template>
+                    <template v-slot:body>
+                        <textarea v-model="newComment" placeholder="请输入评论内容"></textarea>
+                    </template>
+                    <template v-slot:footer>
+                        <button @click="submitComment">提交</button>
+                        <button @click="showCommentModal = false">取消</button>
+                    </template>
+                </modal>
+                <ul>
+                    <li v-for="post in forumPosts" :key="post.commentId">
+                        <p><strong>{{ post.content }}</strong></p>
+                        <p>{{ post.commentTime }}</p>
+                    </li>
+                </ul>
             </div>
         </footer>
     </div>
@@ -52,53 +71,56 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 
 export default {
-    name: 'AlgorithmVisual',
+    name: 'AlgorithmVisual1',
     setup() {
         const algorithms = ref([]);
+        const forumPosts = ref([]);
+        const showCommentModal = ref(false);
+        const newComment = ref('');
+        const rating = ref(50);
+        const router = useRouter();
 
         const computedAlgorithms = computed(() => {
             return algorithms.value;
         });
 
-        const router = useRouter();
-
-        const fetchAlgorithms = async () => {
+        const fetchForumPosts = async () => {
             try {
-                const userToken = localStorage.getItem('userToken');
-                if (!userToken) {
-                    alert('请先登录');
-                    return;
-                }
-                const response = await axios.get('http://121.43.120.166:10020/algorithm/all', {
-                    headers: {
-                        Authorization: userToken,
-                    },
-                });
-                algorithms.value = response.data;
-        
+                const response = await axios.get('http://example.com/api/forum-posts');
+                forumPosts.value = response.data;
             } catch (error) {
-                console.error('Error fetching algorithms:', error);
+                console.error('Error fetching forum posts:', error);
             }
         };
 
+        const submitComment = async () => {
+            try {
+                const response = await axios.post('http://example.com/api/forum-posts', {
+                    content: newComment.value,
+                });
+                forumPosts.value.push(response.data);
+                newComment.value = '';
+                showCommentModal.value = false;
+            } catch (error) {
+                console.error('Error submitting comment:', error);
+            }
+        };
+
+        const saveRating = () => {
+            console.log('当前评分:', rating.value);
+            // 这里可以添加保存评分的逻辑
+        };
+
         const goToAlgorithmMessage = () => {
-            // let Id = '';
-            // switch(algorithmId) {
-            //     case '1':
-            //         Id = '1';
-            //         break;
-            //     case '2':
-            //         Id = '2';
-            //         break;
-            //     case '3':
-            //         Id = '3';
-            //         break;
-            //     default:
-            //         Id = '1'; // 默认页面
-            // }
-            const algorithmId = '1'; // 示例ID
-            router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
-            // 跳转到算法信息页面
+            router.push('/algorithm-message');
+        };
+
+        const goToExercise = () => {
+            router.push('/exercise');
+        };
+
+        const goToUserInfo = () => {
+            router.push('/user-info');
         };
 
         const goToAlgorithmPage = (algorithmName) => {
@@ -119,89 +141,73 @@ export default {
             router.push({ name: routeName, params: { name: algorithmName } });
         };
 
-        const goToUserInfo = () => {
-            router.push({ name: 'UserInfo' });
-        };
-
-
         onMounted(() => {
-            fetchAlgorithms();
+            fetchForumPosts();
         });
 
         return {
-            goToAlgorithmMessage,
-            fetchAlgorithms,
+            algorithms,
+            forumPosts,
+            showCommentModal,
+            newComment,
+            rating,
             computedAlgorithms,
-            goToAlgorithmPage,
+            fetchForumPosts,
+            submitComment,
+            saveRating,
+            goToAlgorithmMessage,
+            goToExercise,
             goToUserInfo,
+            goToAlgorithmPage,
         };
     },
 };
 </script>
 
 <style scoped>
-.info-btn:hover, .profile-btn:hover {
-                background-color: #003d80; /* Even darker blue on hover */
-                transition: background-color 0.3s ease;
-            }
 .algorithm-visual {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    background-color: #007bef; /* Blue background */
-    color: white; /* White text */
+    padding: 20px;
 }
 
 .info-btn, .profile-btn {
-    padding: 5px 10px;
-    background-color: #0056b3; /* Darker blue */
-    color: white; /* White text */
+    background-color: #409eff;
+    color: #fff;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
 }
 
-main {
-    display: flex;
-    flex: 1;
+.info-btn:hover, .profile-btn:hover {
+    background-color: #66b1ff;
 }
 
 .algorithm-list {
-    width: 200px;
-    background-color: #e0f7ff; /* Light blue */
-    padding: 10px;
+    float: left;
+    width: 20%;
 }
 
-.visualization-area {
-    flex: 1;
-    background-color: #ffffff;
-    margin: 10px;
-    border: 1px solid #007BFF; /* Blue border */
-    border-radius: 10px; /* Rounded corners */
-}
-.code-area {
-    flex: 1;
-    background-color: #ffffff;
-    margin: 10px;
-    border: 1px solid #000000; /* Black border */
-    border-radius: 10px; /* Rounded corners */
-}
-
-footer {
-    padding: 10px;
-    background-color: #007BFF; /* Blue background */
-    color: white; /* White text */
-    border-radius: 10px; /* Rounded corners */
+.visualization-area, .code-area, .rating-area, .save-button-area {
+    float: left;
+    width: 20%;
+    padding: 20px;
 }
 
 .forum {
-    height: 100px;
-    background-color: #e0f7ff; /* Light blue */
-    border-radius: 10px; /* Rounded corners */
+    clear: both;
+    padding: 20px;
+}
+
+.add-comment-btn {
+    background-color: #409eff;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.add-comment-btn:hover {
+    background-color: #66b1ff;
 }
 </style>

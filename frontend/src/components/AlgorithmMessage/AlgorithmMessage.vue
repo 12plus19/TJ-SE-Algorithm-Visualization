@@ -59,7 +59,7 @@ export default {
                     alert('请先登录');
                     return;
                 }
-                console.log('Using token:', userToken); // 添加调试信息
+
                 const response = await axios.get(`http://121.43.120.166:10020/algorithm/info/${algorithmId.value}`, {
                     headers: {
                         Authorization: userToken,
@@ -76,6 +76,7 @@ export default {
         const fetchAllAlgorithms = async () => {
             try {
                 const userToken = localStorage.getItem('userToken');
+                console.log('Using token:', userToken); // 添加调试信息
                 if (!userToken) {
                     alert('请先登录');
                     return;
