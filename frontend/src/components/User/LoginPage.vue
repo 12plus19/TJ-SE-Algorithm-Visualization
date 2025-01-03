@@ -53,7 +53,7 @@ export default {
 
         // 根据需求处理响应
         if (response.status === 200) {
-          const token = response.data;
+          const token = response.headers['authorization'];
           localStorage.setItem('userToken', token);
           alert('登录成功', token);
           console.log('登录成功:', token);

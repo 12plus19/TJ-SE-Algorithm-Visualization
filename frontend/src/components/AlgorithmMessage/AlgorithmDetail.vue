@@ -17,11 +17,13 @@
         <div  class="algorithm-info">
             <h2>所有算法信息</h2>
             <ul>
-                <li v-for="algorithm in allAlgorithms" :key="algorithm.algorithmId">
-                    <p><strong>算法ID:</strong> {{ algorithm.algorithmId }}</p>
-                    <p><strong>算法名称:</strong> {{ algorithm.algorithmName }}</p>
-                    <p><strong>算法描述:</strong> {{ algorithm.description }}</p>
-                    <p><strong>算法难度:</strong> {{ algorithm.difficultyLevel }}</p>
+                <li v-for="algorithm in algorithms" :key="algorithm.algorithmId" class="algorithm-item">
+                    <div class="algorithm-info" style="margin-bottom: 20px;">
+                        <p><strong>算法ID:</strong> {{ algorithm.algorithmId }}</p>
+                        <p><strong>算法名称:</strong> {{ algorithm.algorithmName }}</p>
+                        <p><strong>算法描述:</strong> {{ algorithm.description }}</p>
+                        <p><strong>算法难度:</strong> {{ algorithm.difficultyLevel }}</p>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -30,14 +32,19 @@
 
 <script>
 import axios from 'axios';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 export default {
     name: 'AlgorithmDetail',
     setup() {
         const algorithmId = ref('');
         const algorithmInfo = ref(null);
-        const allAlgorithms = ref([]);
+        const allAlgorithms = ref([{ algorithmId: 0, algorithmName: '', description: '', difficultyLevel: '' }]);
+        
+        
+        const algorithms = computed(() => {
+            return allAlgorithms.value;
+        });
 
         const fetchAlgorithmInfo = async () => {
             try {
@@ -73,15 +80,15 @@ export default {
                 });
                 console.log('Data:', response.data); // 添加调试信息
                 allAlgorithms.value = response.data;
-                // console.log('All algorithms:', allAlgorithms.value); // 添加调试信息
-                console.log(allAlgorithms)
+                console.log('All algorithms:', allAlgorithms.value); // 添加调试信息
+        
             } catch (error) {
                 console.error('Error fetching all algorithms:', error);
             }
         };
 
         onMounted(() => {
-            fetchAllAlgorithms();
+            // fetchAllAlgorithms();
         });
 
         return {
@@ -89,6 +96,7 @@ export default {
             algorithmInfo,
             fetchAlgorithmInfo,
             fetchAllAlgorithms,
+            algorithms,
         };
     },
 };
