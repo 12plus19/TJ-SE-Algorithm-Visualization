@@ -4,6 +4,8 @@ import LoginPage from '@/components/User/LoginPage.vue';
 import RegisterPage from '@/components/User/RegisterPage.vue'; 
 import ChangePasswordPage from '@/components/User/ChangePasswordPage.vue';
 import AlgorithmDetail from '@/components/AlgorithmMessage/AlgorithmDetail.vue';  
+import UserInfo from '@/components/UserInfo/UserInfo.vue';
+import ExercisePage from '@/components/Exercise/ExercisePage.vue';
 
 const routes = [
   {
@@ -25,6 +27,16 @@ const routes = [
     path: '/algorithm-detail',
     name: 'AlgorithmDetail',
     component: AlgorithmDetail
+  },
+  {
+    path: '/user-info',
+    name: 'UserInfo',
+    component: UserInfo
+  },
+  {
+    path: '/exercisepage',
+    name: 'ExercisePage',
+    component: ExercisePage
   }
 ];
 
