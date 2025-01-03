@@ -15,7 +15,7 @@
             <div class="progress-bar">
               <div 
                 class="progress-fill" 
-                :style="{ width: `${(getAnsweredCount()) * 5}%` }"
+                :style="{ width: `${(getAnsweredCount()/questions.length*100) }%` }"
               ></div>
             </div>
           </div>
@@ -124,7 +124,7 @@
       const questionScores = ref([]);
       const totalScore = ref(0);
       const submitting = ref(false);
-      const token = localStorage.getItem('userToken');
+      const userToken = localStorage.getItem('userToken');
       const algorithmId = route.query.algorithmId;
       console.log('RoutealgorithmId', route.query.algorithmId);
       console.log('algorithmId', algorithmId);
@@ -135,9 +135,8 @@
   
       // 获取练习题
       const fetchQuestions = async () => {
-
         
-        console.log('获取题目时的token:', token); // debug输出
+        console.log('获取题目时的token:', userToken); // debug输出
         console.log('获取题目时的algorithmId:', algorithmId); // debug输出
   
         try {
@@ -145,7 +144,7 @@
             `http://121.43.120.166:10020/exercise/random/${algorithmId}`,
             {
               headers: {
-                'Authorization': token
+                'Authorization': userToken
               }
             }
           );
@@ -156,12 +155,11 @@
           error.value = '获取题目失败';
           loading.value = false;
         }
-        localStorage.setItem('userToken', token);
+        localStorage.setItem('userToken', userToken);
       };
   
       // 提交答案
       const submitExercise = async () => {
-        const userToken = localStorage.getItem('userToken');
         const userId = localStorage.getItem('userId');
 
         if (!userToken || !userId || !algorithmId) {
@@ -203,10 +201,13 @@
                 userId: userId,
                 algorithmId: algorithmId
               },
-              headers: {
-                Authorization: `token`
-              },
               timeout: 100000
+            },
+            {
+
+              headers: {
+                Authorization: userToken,
+              },
             }
           );
 
@@ -220,7 +221,7 @@
           console.error('更新进度失败:', error);
           console.log('userId', userId);
           console.log('algorithmId', algorithmId);
-          console.log('userToken', token);
+          console.log('userToken', userToken);
           if (error.response?.data) {
             ElMessage.error(error.response.data);
           } else {
