@@ -86,7 +86,7 @@
         <button type="submit" class="register-btn" :disabled="isSendingCode">注册</button>
 
         <div class="login-link">
-          已有账号？<a href="/login">立即登录</a>
+          已有账号？<a href="/">立即登录</a>
         </div>
       </form>
     </div>

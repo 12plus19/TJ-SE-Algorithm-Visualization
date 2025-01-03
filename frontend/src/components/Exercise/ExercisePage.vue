@@ -11,7 +11,9 @@
         <div v-else class="exercise-content">
           <!-- 练习进度 -->
           <div class="progress-info">
-            <span>当前进度: {{ getAnsweredCount() }}/{{ questions.length }}</span>
+            <span>当前进度: {{ getAnsweredCount() }}/{{ questions.length }}  <button class="back-to-visualization-btn" @click="goToVisualizationPage">
+        返回可视化页面
+    </button></span>
             <div class="progress-bar">
               <div 
                 class="progress-fill" 
@@ -301,6 +303,9 @@
         showResults.value = false;
         router.push('/user-info'); // 假设完成后返回仪表板
       };
+      const goToVisualizationPage = () => {
+      router.push('/algorithm-visual1');
+    };
   
       onMounted(() => {
         fetchQuestions();
@@ -323,6 +328,7 @@
         closeResults,
         submitting,
         algorithmId,
+        goToVisualizationPage
       };
     }
   };
@@ -709,4 +715,35 @@
       0 2px 8px rgba(64, 158, 255, 0.25),
       0 1px 2px rgba(64, 158, 255, 0.15);
   }
+
+  .back-to-visualization-btn {
+    padding: 8px 16px;
+    background-color: #409eff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+  }
+
+  .back-to-visualization-btn {
+    position: absolute;
+    right: 0;                  /* 按钮固定在左侧 */
+    margin-right: 30px;
+    margin-bottom: 30px;        /* 适当的左侧间距 */
+  }
+
+  .back-to-visualization-btn:hover {
+    background-color: #0056b3;
+}
+
+.back-to-visualization-btn:focus {
+  outline: none; /* 去除按下时的边框 */
+}
+
+.back-to-visualization-btn:active {
+  background-color: #004085; /* 按下时的背景色 */
+  transform: scale(1); /* 按下时恢复原大小 */
+}
 </style>

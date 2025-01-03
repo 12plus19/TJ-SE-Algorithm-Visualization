@@ -1,7 +1,12 @@
 <template>
   <div class="user-info-container">
     <div class="user-info-box">
-      <h2>个人信息</h2>
+      <h2 class="title-container">
+    <button class="back-to-visualization-btn" @click="goToVisualizationPage">
+        返回可视化页面
+    </button>
+    <span class="title">个人信息</span>
+</h2>
       <div v-if="loading" class="loading">加载中...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
       <div v-else class="user-details">
@@ -23,6 +28,7 @@
 
         <div class="progress-section">
           <h3>学习进度</h3>
+            
           <div class="progress-bar">
             <div 
               class="progress-fill" 
@@ -212,6 +218,9 @@ export default {
       }
     };
 
+    const goToVisualizationPage = () => {
+      router.push('/algorithm-visual1');
+    };
     // 修改密码
     const handlePasswordChange = async () => {
       const token = checkAuth();
@@ -262,13 +271,31 @@ export default {
       passwordForm,
       password,
       handlePasswordChange,
-      showChangePasswordModal
+      showChangePasswordModal,
+      goToVisualizationPage
     };
   }
 };
 </script>
 
 <style scoped>
+ .title-container {
+    display: flex;
+    justify-content: center;  /* 水平居中 */
+    align-items: center;      /* 垂直居中 */
+    position: relative;
+  }
+
+  .back-to-visualization-btn {
+    position: absolute;
+    left: 0;                  /* 按钮固定在左侧 */
+    margin-left: 20px;        /* 适当的左侧间距 */
+  }
+
+  .title {
+    margin-left: 40px;        /* 给个人信息加点间距，避免和按钮重叠 */
+  }
+
 .user-info-container {
   display: flex;
   justify-content: center;
@@ -301,6 +328,20 @@ h3 {
   margin: 30px 0 20px;
   padding-bottom: 10px;
   border-bottom: 2px solid #ebeef5;
+}
+
+.back-to-visualization-btn {
+  background-color: #007BFF; /* 蓝色背景 */
+  color: white; /* 白色文字 */
+  font-weight: bold; /* 加粗文字 */
+  padding: 10px 20px; /* 内边距 */
+  border: none; /* 无边框 */
+  border-radius: 5px; /* 圆角 */
+  cursor: pointer; /* 鼠标指针 */
+}
+
+.back-to-visualization-btn:hover {
+  background-color: #0056b3; /* 悬停时更深的蓝色背景 */
 }
 
 .info-section {
