@@ -33,7 +33,6 @@
                         </transition-group>
                     </div>
                 </div>
-
                 <button @click="solveNQueens">Solve N Queens</button>
             </section>
             <section class="code-area">
@@ -57,7 +56,29 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import ace from 'ace-builds'
 import 'ace-builds/css/ace.css'
-import 'ace-builds/webpack-resolver' // 全量导入
+//import 'ace-builds/webpack-resolver' // 全量导入
+// #endregion
+// #region 代码提示
+import 'ace-builds/src-noconflict/ext-language_tools'
+// #endregion
+// #region 代码校验
+ace.config.setModuleUrl(
+  'ace/mode/base_worker',
+  require('file-loader?esModule=false!ace-builds/src-noconflict/worker-base.js')
+)
+ace.config.setModuleUrl(
+  'ace/mode/lua_worker',
+  require('file-loader?esModule=false!ace-builds/src-noconflict/worker-lua.js')
+)
+// #endregion
+// #region 主题
+import 'ace-builds/src-noconflict/theme-chrome'
+// #endregion
+// #region 其他功能
+import 'ace-builds/src-noconflict/ext-searchbox'
+import 'ace-builds/src-noconflict/ext-keybinding_menu'
+import 'ace-builds/src-noconflict/ext-settings_menu'
+
 
 // 定义辅助函数
 function isSelected(x, y, selectedCell) {

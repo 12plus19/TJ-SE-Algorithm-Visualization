@@ -8,12 +8,13 @@ import AlgorithmVisual1 from '@/components/AlgorithmVisual/AlgorithmVisual1.vue'
 import AlgorithmVisual2 from '@/components/AlgorithmVisual/AlgorithmVisual2.vue';
 import AlgorithmVisual3 from '@/components/AlgorithmVisual/AlgorithmVisual3.vue';
 import AlgorithmMessage from '@/components/AlgorithmMessage/AlgorithmMessage.vue';
+import AlgorithmForum from '@/components/Comment/AlgorithmForum.vue';
 import UserInfo from '@/components/UserInfo/UserInfo.vue';
 import ExercisePage from '@/components/Exercise/ExercisePage.vue';
 
 const routes = [
   {
-    path: '/login',
+    path: '/',
     name: 'Login',
     component: LoginPage
   },
@@ -40,7 +41,8 @@ const routes = [
   {
     path: '/algorithm-visual2',
     name: 'AlgorithmVisual2',
-    component: AlgorithmVisual2
+    component: AlgorithmVisual2,
+    props: true,
   },
   {
     path: '/algorithm-visual3',
@@ -60,7 +62,14 @@ const routes = [
   {
     path: '/exercise',
     name: 'Exercise',
-    component: ExercisePage
+    component: ExercisePage,
+    props: true,
+  },
+  {
+    path: '/forum/:algorithmId',
+    name: 'AlgorithmForum',
+    component: AlgorithmForum,
+    props: true,
   }
 ];
 
