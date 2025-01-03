@@ -26,9 +26,9 @@
           <div class="progress-bar">
             <div 
               class="progress-fill" 
-              :style="{ width: `${userInfo.progress}%` }"
+              :style="{ width: `${userInfo.progress*100 }%` }"
             ></div>
-            <span class="progress-text">{{ userInfo.progress }}%</span>
+            <span class="progress-text">{{ userInfo.progress * 100}}%</span>
           </div>
           <div class="progress-details">
             <div class="progress-item">
@@ -50,9 +50,9 @@
                 <div class="detail-progress-bar">
                   <div 
                     class="detail-progress-fill" 
-                    :style="{ width: `${item.progress}%` }"
+                    :style="{ width: `${item.progress*100}%` }"
                   ></div>
-                  <span class="detail-progress-text">{{ item.progress }}%</span>
+                  <span class="detail-progress-text">{{ item.progress*100}}%</span>
                 </div>
               </div>
               <div class="learning-status">

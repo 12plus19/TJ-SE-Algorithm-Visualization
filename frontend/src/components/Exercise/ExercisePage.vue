@@ -15,7 +15,7 @@
             <div class="progress-bar">
               <div 
                 class="progress-fill" 
-                :style="{ width: `${(getAnsweredCount()/questions.length*100) }%` }"
+                :style="{ width: `${(getAnsweredCount()) / questions.length *100}%` }"
               ></div>
             </div>
           </div>
@@ -124,6 +124,7 @@
       const questionScores = ref([]);
       const totalScore = ref(0);
       const submitting = ref(false);
+      const userId = localStorage.getItem('userId');
       const userToken = localStorage.getItem('userToken');
       const algorithmId = route.query.algorithmId;
       console.log('RoutealgorithmId', route.query.algorithmId);
@@ -135,6 +136,7 @@
   
       // 获取练习题
       const fetchQuestions = async () => {
+
         
         console.log('获取题目时的token:', userToken); // debug输出
         console.log('获取题目时的algorithmId:', algorithmId); // debug输出
@@ -144,7 +146,7 @@
             `http://121.43.120.166:10020/exercise/random/${algorithmId}`,
             {
               headers: {
-                'Authorization': userToken
+                Authorization: userToken
               }
             }
           );
@@ -158,9 +160,58 @@
         localStorage.setItem('userToken', userToken);
       };
   
+
+  //     // 提交答案
+  //     const submitExercise = async () => {
+
+  // console.log('提交答案时的token:', userToken); // debug输出
+  //       if (!userToken) {
+  //         alert('未登录或登录已过期，请重新登录');
+  //        router.push('/'); // 假设有登录页面路由
+  //        return;
+  //      }
+  //       try {
+  //         const scores = [];
+  //         for (let i = 0; i < questions.value.length; i++) {
+  //           const answer = userAnswers.value[i]?.trim() || "0";
+
+  //           console.log('问题ID',questions.value[i].exerciseId);
+  //           console.log('回答',answer);
+  //           const response = await axios.post('http://121.43.120.166:10020/exercise/checkAnswer',null,{
+  //             headers: {
+  //                       Authorization: userToken,
+  //                   },
+  //             params:{
+  //               exerciseId: questions.value[i].exerciseId,
+  //               answer: answer,
+  //             },
+              
+              
+  //         });
+  //           console.log('请求成功，响应数据：', response.data);
+  //           scores.push(response.data);
+  //         }
+  //         questionScores.value = scores;
+  //         totalScore.value = scores.reduce((sum, score) => sum + score, 0);
+  //         showResults.value = true;
+  //       } catch (err) {
+  //         console.log('请求失败，错误信息：', err.response || err);
+  //       if (err.response?.status === 401) {
+  //         console.log(userToken);
+  //         alert('登录已过期，请重新登录');
+  //         localStorage.removeItem('userToken'); // 清除无效token
+  //         router.push('/');
+  //       } else {
+  //         console.log('data',questions.value[0].exerciseId);
+  //         alert('提交答案失败');
+  //         console.error(err);
+  //       }}
+  //     };
+
       // 提交答案
       const submitExercise = async () => {
-        const userId = localStorage.getItem('userId');
+        const userToken = localStorage.getItem('userToken');
+
 
         if (!userToken || !userId || !algorithmId) {
           ElMessage.error('请先登录');
@@ -175,15 +226,15 @@
             const answer = userAnswers.value[i]?.trim() || "0";
 
             const response = await axios.post(
-              'http://121.43.120.166:10020/exercise/checkAnswer',null,
-              {
-                exerciseId: questions.value[i].id,
+              'http://121.43.120.166:10020/exercise/checkAnswer',null,{
+              params: {
+                exerciseId: questions.value[i].exerciseId,
                 answer: answer
               },
-              {
               headers: {
                 'Authorization': userToken,
-              }}
+              }
+             }
             );
             console.log('请求成功，响应数据：', response.data);
             scores.push(response.data);
@@ -197,17 +248,14 @@
             'http://121.43.120.166:10020/learningProgress/hasDone',
             null,
             {
-              query: {
+              params: {
                 userId: userId,
                 algorithmId: algorithmId
               },
-              timeout: 100000
-            },
-            {
-
               headers: {
                 Authorization: userToken,
               },
+              timeout: 100000
             }
           );
 
@@ -251,7 +299,7 @@
   
       const closeResults = () => {
         showResults.value = false;
-        router.push('/dashboard'); // 假设完成后返回仪表板
+        router.push('/user-info'); // 假设完成后返回仪表板
       };
   
       onMounted(() => {
