@@ -44,6 +44,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import AlgorithmForum from '@/components/Comment/AlgorithmForum.vue'
 import { setCurrentAlgorithmId } from '@/store/algorithmStore'
+import { ElMessage } from 'element-plus';
 
 export default {
     components: {
@@ -52,6 +53,9 @@ export default {
     name: 'AlgorithmVisual',
     setup() {
         const algorithms = ref([]);
+        const userId = localStorage.getItem('userId');
+        const userToken = localStorage.getItem('userToken');
+        const submitting = ref(false);
 
         const computedAlgorithms = computed(() => {
             return algorithms.value;
@@ -60,6 +64,7 @@ export default {
         const router = useRouter();
 
         const fetchAlgorithms = async () => {
+            submitting.value = true;
             try {
                 const userToken = localStorage.getItem('userToken');
                 if (!userToken) {
@@ -78,14 +83,48 @@ export default {
             }
         };
 
-        const goToAlgorithmMessage = () => {
-            const algorithmId = '1'; // 示例ID
+        const goToAlgorithmMessage = async() => {
+            const algorithmId = '2'; // 示例ID
             router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
+            try {
+            const progressResponse = await axios.put(
+            'http://121.43.120.166:10020/learningProgress/hasRead',
+            null,
+            {
+              params: {
+                userId: userId,
+                algorithmId: algorithmId
+              },
+              headers: {
+                Authorization: userToken,
+              },
+              timeout: 100000
+            }
+          );
+          // 处理进度更新响应
+          if (progressResponse.status === 200) {
+            ElMessage.success(progressResponse.data);
+            console.log('学习进度更新成功:', progressResponse.data);
+          }
+
+        } catch (error) {
+          console.error('更新进度失败:', error);
+          console.log('userId', userId);
+          console.log('algorithmId', algorithmId);
+          console.log('userToken', userToken);
+          if (error.response?.data) {
+            ElMessage.error(error.response.data);
+          } else {
+            ElMessage.error('提交失败，请重试');
+          }
+        } finally {
+          submitting.value = false;
+        }
         };
 
         const goToAlgorithmPage = (algorithmName) => {
             let routeName = '';
-            let algorithmId = '1'; // 默认ID
+            let algorithmId = '2'; // 默认ID
             
             switch (algorithmName) {
                 case '八皇后问题':
@@ -101,8 +140,8 @@ export default {
                     algorithmId = '3';
                     break;
                 default:
-                    routeName = 'AlgorithmVisual3';
-                    algorithmId = '3';
+                    routeName = 'AlgorithmVisual2';
+                    algorithmId = '2';
             }
             
             setCurrentAlgorithmId(algorithmId); // 设置当前算法ID
@@ -114,7 +153,7 @@ export default {
         };
 
         const goToExercise = () => {
-            const algorithmId = computedAlgorithms.value[0].algorithmId; // 示例ID，实际上应从选中的算法数据中获取
+            const algorithmId = computedAlgorithms.value[2].algorithmId; // 示例ID，实际上应从选中的算法数据中获取
             const userToken = localStorage.getItem('userToken');
             if (!userToken) {
                 alert('请先登录');
@@ -123,11 +162,12 @@ export default {
             // 跳转到对应算法的练习题页面，并传递 algorithmId 和 userToken
             router.push({ 
                 name: 'Exercise', 
-                params: { 
+                query: { 
                     algorithmId: algorithmId, 
                     userToken: userToken 
                 }
             });
+            console.log('algorithmId:', algorithmId);
         };
 
         onMounted(() => {
