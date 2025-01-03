@@ -106,13 +106,14 @@
   
   <script>
   import { ref, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRouter, useRoute } from 'vue-router';
   import axios from 'axios';
   import { ElMessage } from 'element-plus';
   
   export default {
     name: 'ExercisePage',
     setup() {
+      const route = useRoute();
       const router = useRouter();
       const loading = ref(true);
       const error = ref(null);
@@ -124,6 +125,9 @@
       const totalScore = ref(0);
       const submitting = ref(false);
       const token = localStorage.getItem('userToken');
+      const algorithmId = route.query.algorithmId;
+      console.log('RoutealgorithmId', route.query.algorithmId);
+      console.log('algorithmId', algorithmId);
 
       const getAnsweredCount = () => {
         return userAnswers.value.filter(answer => answer.trim() !== '').length;
@@ -131,7 +135,7 @@
   
       // 获取练习题
       const fetchQuestions = async () => {
-        const algorithmId = localStorage.getItem('algorithmId');
+
         
         console.log('获取题目时的token:', token); // debug输出
         console.log('获取题目时的algorithmId:', algorithmId); // debug输出
@@ -269,7 +273,8 @@
         goToQuestion,
         submitExercise,
         closeResults,
-        submitting
+        submitting,
+        algorithmId,
       };
     }
   };

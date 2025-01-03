@@ -62,7 +62,8 @@ const routes = [
   {
     path: '/exercise',
     name: 'Exercise',
-    component: ExercisePage
+    component: ExercisePage,
+    props: true,
   },
   {
     path: '/forum/:algorithmId',

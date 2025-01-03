@@ -114,7 +114,7 @@ export default {
         };
 
         const goToExercise = () => {
-            const algorithmId = computedAlgorithms.value[0].algorithmId; // 示例ID，实际上应从选中的算法数据中获取
+            const algorithmId = computedAlgorithms.value[1].algorithmId; // 示例ID，实际上应从选中的算法数据中获取
             const userToken = localStorage.getItem('userToken');
             if (!userToken) {
                 alert('请先登录');
@@ -123,11 +123,12 @@ export default {
             // 跳转到对应算法的练习题页面，并传递 algorithmId 和 userToken
             router.push({ 
                 name: 'Exercise', 
-                params: { 
+                query: { 
                     algorithmId: algorithmId, 
                     userToken: userToken 
                 }
             });
+            console.log('algorithmId:', algorithmId);
         };
 
         onMounted(() => {
