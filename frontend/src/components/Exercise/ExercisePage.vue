@@ -163,7 +163,6 @@
       const submitExercise = async () => {
         const userToken = localStorage.getItem('userToken');
         const userId = localStorage.getItem('userId');
-        const algorithmId = localStorage.getItem('algorithmId');
 
         if (!userToken || !userId || !algorithmId) {
           ElMessage.error('请先登录');
@@ -200,7 +199,7 @@
             'http://121.43.120.166:10020/learningProgress/hasDone',
             null,
             {
-              params: {
+              query: {
                 userId: userId,
                 algorithmId: algorithmId
               },
