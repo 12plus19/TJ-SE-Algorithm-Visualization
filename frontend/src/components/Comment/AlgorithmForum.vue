@@ -106,13 +106,14 @@
               <el-button size="small" @click="cancelReply">取消</el-button>
             </div>
 
-            <!-- 递归显示更深层回复 -->
-            <div class="replies-container" 
-                 v-if="isExpanded(reply.commentId)">
-              <nested-replies 
-                :replies="getCachedReplies(reply.commentId)"
-                @reply="$emit('reply', $event)"
-              />
+            <!-- 修改递归显示部分 -->
+            <div class="nested-replies" v-if="isExpanded(reply.commentId)">
+              <div class="nested-replies">
+                <nested-replies 
+                  :replies="getCachedReplies(reply.commentId)"
+                  @reply="showReplyInput"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -220,13 +221,14 @@ const NestedReplies = defineComponent({
         <el-button size="small" @click="cancelReply">取消</el-button>
       </div>
 
-      <!-- 递归显示更深层回复 -->
-      <div class="replies-container" 
-           v-if="isExpanded(reply.commentId)">
-        <nested-replies 
-          :replies="getCachedReplies(reply.commentId)"
-          @reply="$emit('reply', $event)"
-        />
+      <!-- 修改递归显示部分 -->
+      <div class="nested-replies" v-if="isExpanded(reply.commentId)">
+        <div class="replies-container">
+          <nested-replies 
+            :replies="getCachedReplies(reply.commentId)"
+            @reply="$emit('reply', $event)"
+          />
+        </div>
       </div>
     </div>
   `
@@ -597,11 +599,36 @@ export default {
 
 /* 嵌套评论样式 */
 .nested-comment {
-  margin-top: 12px;
+  position: relative;
+  margin-bottom: 15px;
   padding: 12px;
   background-color: #f8f9fa;
   border-radius: 6px;
   border: 1px solid #ebeef5;
+}
+
+/* 添加嵌套线条 */
+.nested-replies::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e8e8e8;
+}
+
+/* 优化回复容器样式 */
+.replies-container {
+  position: relative;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+/* 确保深层嵌套也有正确的样式 */
+.nested-comment .nested-comment {
+  margin-left: 15px;
+  background-color: #fff;
 }
 
 /* 评论头部样式 */
