@@ -4,13 +4,13 @@
             <div style="display: flex; align-items: center; width: 100%;">
                 <div style="flex: 1;">
                     <button class="info-btn" style="padding: 10px 20px; margin-right: 10px;" @click="goToAlgorithmMessage()"><strong>详细信息</strong></button>
-                    <button class="info-btn" style="padding: 10px 20px;" @click="goToAlgorithmMessage()"><strong>练习题</strong></button>
+                    <button class="info-btn" style="padding: 10px 20px;" @click="goToUserInfo()"><strong>练习题</strong></button>
                 </div>
                 <div style="flex: 2; text-align: center;">
                     <h1>算法可视化平台</h1>
                 </div>
                 <div style="flex: 1; text-align: right;">
-                    <button class="profile-btn" style="padding: 10px 20px"><strong>个人信息</strong></button>
+                    <button class="profile-btn" style="padding: 10px 20px;" @click="goToUserInfo()"><strong>个人信息</strong></button>
                 </div>
             </div>
         </header>
@@ -119,6 +119,10 @@ export default {
             router.push({ name: routeName, params: { name: algorithmName } });
         };
 
+        const goToUserInfo = () => {
+            router.push({ name: 'UserInfo' });
+        };
+
 
         onMounted(() => {
             fetchAlgorithms();
@@ -129,6 +133,7 @@ export default {
             fetchAlgorithms,
             computedAlgorithms,
             goToAlgorithmPage,
+            goToUserInfo,
         };
     },
 };

@@ -54,10 +54,15 @@ export default {
         // 根据需求处理响应
         if (response.status === 200) {
           const token = response.headers['authorization'];
-          localStorage.setItem('userToken', token);
+          const userId = response.data.userId;
+
+
+
           localStorage.setItem('algorithmId', '1');
           alert('登录成功', token);
+          console.log('userId:', userId);
           console.log('登录成功:', token);
+          console.log('response:', response.data);
           router.push('/algorithm-message');
         } else {
           console.error('登录失败:', response.data);

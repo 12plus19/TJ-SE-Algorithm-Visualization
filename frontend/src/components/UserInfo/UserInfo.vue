@@ -145,7 +145,10 @@ export default {
     };
 
     const token = checkAuth();
-    const userId = JSON.parse(localStorage.getItem('userData'))?.userId;
+    const userId = localStorage.getItem('userId');
+
+    console.log('userId:', userId);
+    console.log('token:', token);
 
     // 获取用户信息
     const fetchUserInfo = async () => {
