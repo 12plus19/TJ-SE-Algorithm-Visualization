@@ -111,7 +111,7 @@ export default {
         };
 
         const goToAlgorithmMessage = () => {
-            router.push('/algorithm-message');
+            router.push('/algorithm-detail');
         };
 
         const goToExercise = () => {

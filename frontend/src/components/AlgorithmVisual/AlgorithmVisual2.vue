@@ -23,7 +23,7 @@
         </main>
         <footer>
             <div class="forum">
-                <!-- 论坛 -->
+                <AlgorithmForum />
             </div>
         </footer>
     </div>
@@ -33,8 +33,13 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import AlgorithmForum from '@/components/Comment/AlgorithmForum.vue'
+import { setCurrentAlgorithmId } from '@/store/algorithmStore'
 
 export default {
+    components: {
+    AlgorithmForum
+  },
     name: 'AlgorithmVisual',
     setup() {
         const algorithms = ref([]);
@@ -86,19 +91,27 @@ export default {
 
         const goToAlgorithmPage = (algorithmName) => {
             let routeName = '';
+            let algorithmId = '1'; // 默认ID
+            
             switch (algorithmName) {
                 case '八皇后问题':
                     routeName = 'AlgorithmVisual1';
+                    algorithmId = '1';
                     break;
                 case '机器学习':
                     routeName = 'AlgorithmVisual2';
+                    algorithmId = '2';
                     break;
                 case 'Prim算法':
                     routeName = 'AlgorithmVisual3';
+                    algorithmId = '3';
                     break;
                 default:
-                    routeName = 'AlgorithmVisual2'; // 默认页面
+                    routeName = 'AlgorithmVisual3';
+                    algorithmId = '2';
             }
+            
+            setCurrentAlgorithmId(algorithmId); // 设置当前算法ID
             router.push({ name: routeName, params: { name: algorithmName } });
         };
 
@@ -125,33 +138,34 @@ export default {
 .algorithm-visual {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh; /* 改为最小高度，允许内容超出 */
 }
 
 header {
     display: flex;
     justify-content: space-between;
     padding: 10px;
-    background-color: #007BFF; /* Blue background */
-    color: white; /* White text */
+    background-color: #007BFF;
+    color: white;
 }
 
 .info-btn, .profile-btn {
     padding: 5px 10px;
-    background-color: #0056b3; /* Darker blue */
-    color: white; /* White text */
+    background-color: #0056b3;
+    color: white;
     border: none;
     cursor: pointer;
 }
 
 main {
+    height: 600px; /* 保持固定高度 */
     display: flex;
-    flex: 1;
+    margin: 10px 0;
 }
 
 .algorithm-list {
     width: 200px;
-    background-color: #e0f7ff; /* Light blue */
+    background-color: #e0f7ff;
     padding: 10px;
 }
 
@@ -159,27 +173,28 @@ main {
     flex: 1;
     background-color: #ffffff;
     margin: 10px;
-    border: 1px solid #007BFF; /* Blue border */
-    border-radius: 10px; /* Rounded corners */
+    border: 1px solid #007BFF;
+    border-radius: 10px;
 }
+
 .code-area {
     flex: 1;
     background-color: #ffffff;
     margin: 10px;
-    border: 1px solid #000000; /* Black border */
-    border-radius: 10px; /* Rounded corners */
+    border: 1px solid #000000;
+    border-radius: 10px;
 }
 
 footer {
     padding: 10px;
-    background-color: #007BFF; /* Blue background */
-    color: white; /* White text */
-    border-radius: 10px; /* Rounded corners */
+    background-color: #007BFF;
+    color: white;
+    border-radius: 10px;
 }
 
 .forum {
-    height: 100px;
-    background-color: #e0f7ff; /* Light blue */
-    border-radius: 10px; /* Rounded corners */
+    background-color: #e0f7ff;
+    border-radius: 10px;
+    padding: 10px;
 }
 </style>
