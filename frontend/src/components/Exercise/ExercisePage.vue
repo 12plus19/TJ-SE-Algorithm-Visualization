@@ -24,7 +24,7 @@
           <div class="question-area">
             <h3>题目 {{ currentQuestion + 1 }}</h3>
             <div class="question-content">
-              {{ questions[currentQuestion].content }}
+              {{ questions[currentQuestion].question }}
             </div>
           </div>
   
@@ -138,6 +138,7 @@
             }
           );
           questions.value = response.data;
+          console.log('获取题目成功，题目数据：', response.data);
           userAnswers.value = new Array(response.data.length).fill('');
           loading.value = false;
         } catch (err) {

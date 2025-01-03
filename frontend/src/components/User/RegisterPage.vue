@@ -86,7 +86,7 @@
             headers: {
               'Content-Type': 'application/json'
             },
-            timeout: 5000
+            timeout: 100000
           });
   
           // 根据需求处理响应
