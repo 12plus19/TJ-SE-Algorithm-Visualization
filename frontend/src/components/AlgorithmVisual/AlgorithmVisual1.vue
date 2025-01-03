@@ -36,7 +36,7 @@
                             <div v-for="(queen, i) in queens" :key="`queen-${i}`" class="queen"
                                 :class="{ 'visible': queenVisibility[i] }"
                                 :style="{ left: `${queen[1] * 50}px`, top: `${queen[0] * 50}px` }">
-                                <div class="circle"></div>
+                                <div class="queen-image"></div>
                             </div>
                         </transition-group>
                     </div>
@@ -601,7 +601,13 @@ main {
     margin: 10px;
     border: 1px solid #007BFF; /* Blue border */
     border-radius: 10px; /* Rounded corners */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* 垂直方向底部对齐 */
+    align-items: center; /* 水平方向居中对齐 */
+    padding-bottom: 20px; /* 底部内边距 */
 }
+
 
 .code-area {
     flex: 1;
@@ -711,23 +717,30 @@ html {
   left: 5px;  
 }  
 
-.QueenButton {
-  background-color: #007bff; /* 蓝色背景 */
-  color: white; /* 白色文字 */
-  border: none; /* 去掉默认边框 */
-  padding: 10px 20px; /* 适中的内边距，调整按钮大小 */
-  font-size: 14px; /* 设置字体大小 */
-  border-radius: 5px; /* 圆角效果 */
-  cursor: pointer; /* 鼠标悬停时显示指针 */
-  transition: background-color 0.3s, transform 0.2s; /* 添加过渡效果 */
+.queen-image {  
+  position: absolute;
+  top: 50%;                       /* 垂直居中 */
+  left: 50%;                      /* 水平居中 */
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;  
+  background-image: url('../../assets/queen2.png');  
+  background-size: cover;  
+  background-position: center;
+}
 
-  margin-top: -10px; /* 往上偏移10px */
-  margin-left: 10px; /* 往右偏移10px */
+.QueenButton {
+    margin-top: 20px; /* 顶部外边距 */
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .QueenButton:hover {
-  background-color: #0056b3; /* 鼠标悬停时改变背景色 */
-  transform: scale(1.05); /* 鼠标悬停时轻微放大 */
+    background-color: #0056b3;
 }
 
 .QueenButton:focus {
