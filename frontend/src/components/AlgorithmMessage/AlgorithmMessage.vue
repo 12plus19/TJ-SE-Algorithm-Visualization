@@ -42,7 +42,7 @@ export default {
         const router = useRouter();
         const algorithmId = ref('');
         const algorithmInfo = ref(null);
-        const allAlgorithms = ref([{ algorithmId: 0, algorithmName: '', description: '', difficultyLevel: '' }]);
+        const allAlgorithms = ref([]);
         
          // 控制显示的状态
         const showAllAlgorithms = ref(false); // 控制是否显示所有算法信息
