@@ -16,31 +16,30 @@
         </header>
         <main>
             <aside class="algorithm-list">
-            <ul>
-                <li v-for="algorithm in computedAlgorithms" :key="algorithm.algorithmName">
-                <p @click="goToAlgorithmPage(algorithm.algorithmName)"><strong>{{ algorithm.algorithmName }}</strong></p>
-                </li>
-            </ul>
+                <ul>
+                    <li v-for="algorithm in computedAlgorithms" :key="algorithm.algorithmName">
+                        <p @click="goToAlgorithmPage(algorithm.algorithmName)"><strong>{{ algorithm.algorithmName }}</strong></p>
+                    </li>
+                </ul>
             </aside>
             <section class="visualization-area">
-            <!-- 可视化区域 -->
+                <!-- 可视化区域 -->
             </section>
             <section class="code-area">
-            <!-- 可视化区域 -->
+                <!-- 可视化区域 -->
             </section>
             <section class="rating-area">
-            <label for="rating">评分:</label>
-            <input type="range" id="rating" v-model="rating" min="0" max="100" step="1" style="writing-mode: bt-lr; height: 200px;">
-            <p>当前评分: {{ rating }}</p>
+                <label for="rating">评分:</label>
+                <input type="range" id="rating" v-model="rating" min="0" max="100" step="1" style="writing-mode: bt-lr; height: 200px;">
+                <p>当前评分: {{ rating }}</p>
             </section>
             <section class="save-button-area">
-            <button @click="saveRating">保存评分</button>
+                <button @click="saveRating">保存评分</button>
             </section>
         </main>
         <footer>
             <div class="forum">
                 <h2>论坛</h2>
-
                 <button class="add-comment-btn" @click="showCommentModal = true">+</button>
                 <modal v-if="showCommentModal" @close="showCommentModal = false">
                     <template v-slot:header>
@@ -167,6 +166,14 @@ export default {
 <style scoped>
 .algorithm-visual {
     padding: 20px;
+    display: flex;
+    flex-wrap: wrap; /* 允许子元素换行 */
+    justify-content: space-between; /* 设置子元素的间距 */
+}
+
+header, footer {
+    width: 100%;
+    text-align: center;
 }
 
 .info-btn, .profile-btn {
@@ -181,20 +188,22 @@ export default {
     background-color: #66b1ff;
 }
 
+/* 侧边栏的样式 */
 .algorithm-list {
-    float: left;
-    width: 20%;
+    flex: 1 1 20%; /* 侧边栏占20%的宽度，允许自适应 */
+    padding: 20px;
 }
 
 .visualization-area, .code-area, .rating-area, .save-button-area {
-    float: left;
-    width: 20%;
+    flex: 1 1 30%; /* 各区域占30%的宽度 */
     padding: 20px;
+    min-width: 200px; /* 设置最小宽度，防止在窄屏下挤压 */
 }
 
 .forum {
     clear: both;
     padding: 20px;
+    width: 100%;
 }
 
 .add-comment-btn {
