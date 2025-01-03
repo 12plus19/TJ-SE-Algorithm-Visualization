@@ -1,9 +1,18 @@
 <template>
     <div class="algorithm-visual">
         <header>
-            <button class="info-btn" @click="goToAlgorithmMessage()">详细信息</button>
-            
-            <button class="profile-btn">个人信息</button>
+            <div style="display: flex; align-items: center; width: 100%;">
+                <div style="flex: 1;">
+                    <button class="info-btn" style="padding: 10px 20px; margin-right: 10px;" @click="goToAlgorithmMessage()"><strong>详细信息</strong></button>
+                    <button class="info-btn" style="padding: 10px 20px;" @click="goToExercise()"><strong>练习题</strong></button>
+                </div>
+                <div style="flex: 2; text-align: center;">
+                    <h1>算法可视化平台</h1>
+                </div>
+                <div style="flex: 1; text-align: right;">
+                    <button class="profile-btn" style="padding: 10px 20px;" @click="goToUserInfo()"><strong>个人信息</strong></button>
+                </div>
+            </div>
         </header>
         <main>
             <aside class="algorithm-list">
@@ -38,8 +47,8 @@ import { setCurrentAlgorithmId } from '@/store/algorithmStore'
 
 export default {
     components: {
-    AlgorithmForum
-  },
+        AlgorithmForum
+    },
     name: 'AlgorithmVisual',
     setup() {
         const algorithms = ref([]);
@@ -70,23 +79,8 @@ export default {
         };
 
         const goToAlgorithmMessage = () => {
-            // let Id = '';
-            // switch(algorithmId) {
-            //     case '1':
-            //         Id = '1';
-            //         break;
-            //     case '2':
-            //         Id = '2';
-            //         break;
-            //     case '3':
-            //         Id = '3';
-            //         break;
-            //     default:
-            //         Id = '1'; // 默认页面
-            // }
             const algorithmId = '1'; // 示例ID
             router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
-            // 跳转到算法信息页面
         };
 
         const goToAlgorithmPage = (algorithmName) => {
@@ -107,7 +101,7 @@ export default {
                     algorithmId = '3';
                     break;
                 default:
-                    routeName = 'AlgorithmVisual3';
+                    routeName = 'AlgorithmVisual2';
                     algorithmId = '2';
             }
             
@@ -115,6 +109,26 @@ export default {
             router.push({ name: routeName, params: { name: algorithmName } });
         };
 
+        const goToUserInfo = () => {
+            router.push({ name: 'UserInfo' });
+        };
+
+        const goToExercise = () => {
+            const algorithmId = computedAlgorithms.value[0].algorithmId; // 示例ID，实际上应从选中的算法数据中获取
+            const userToken = localStorage.getItem('userToken');
+            if (!userToken) {
+                alert('请先登录');
+                return;
+            }
+            // 跳转到对应算法的练习题页面，并传递 algorithmId 和 userToken
+            router.push({ 
+                name: 'Exercise', 
+                params: { 
+                    algorithmId: algorithmId, 
+                    userToken: userToken 
+                }
+            });
+        };
 
         onMounted(() => {
             fetchAlgorithms();
@@ -125,76 +139,163 @@ export default {
             fetchAlgorithms,
             computedAlgorithms,
             goToAlgorithmPage,
+            goToUserInfo,
+            goToExercise,
         };
     },
-};
+}
 </script>
 
+
 <style scoped>
-.info-btn:hover, .profile-btn:hover {
-                background-color: #003d80; /* Even darker blue on hover */
-                transition: background-color 0.3s ease;
-            }
 .algorithm-visual {
     display: flex;
     flex-direction: column;
-    min-height: 100vh; /* 改为最小高度，允许内容超出 */
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
+    background-color: #f5f7fa;
 }
 
 header {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    padding: 15px 25px;
     background-color: #007BFF;
     color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 .info-btn, .profile-btn {
-    padding: 5px 10px;
+    padding: 8px 16px;
     background-color: #0056b3;
     color: white;
     border: none;
+    border-radius: 6px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.info-btn:hover, .profile-btn:hover {
+    background-color: #003d80;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 main {
-    height: 600px; /* 保持固定高度 */
+    height: 600px;
     display: flex;
-    margin: 10px 0;
+    gap: 20px;
+    width: 100%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .algorithm-list {
-    width: 200px;
+    width: 220px;
     background-color: #e0f7ff;
-    padding: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.algorithm-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.algorithm-list li {
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.algorithm-list li p {
+    padding: 10px 15px;
+    background-color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #2c3e50;
+}
+
+.algorithm-list li p:hover {
+    background-color: #007BFF;
+    color: white;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
 }
 
 .visualization-area {
     flex: 1;
     background-color: #ffffff;
-    margin: 10px;
-    border: 1px solid #007BFF;
+    margin: 0;
+    border: 2px solid #007BFF;
     border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 12px rgba(0, 123, 255, 0.1);
 }
 
 .code-area {
     flex: 1;
     background-color: #ffffff;
-    margin: 10px;
-    border: 1px solid #000000;
+    margin: 0;
+    border: 2px solid #2c3e50;
     border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 footer {
-    padding: 10px;
+    margin-top: 20px;
+    padding: 20px;
     background-color: #007BFF;
     color: white;
-    border-radius: 10px;
+    border-radius: 12px;
+    width: 100%;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .forum {
-    background-color: #e0f7ff;
-    border-radius: 10px;
-    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    width: 100%;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 添加响应式设计 */
+@media (max-width: 1200px) {
+    main {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .algorithm-list {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .visualization-area,
+    .code-area {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+
+/* 添加平滑滚动 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 添加内容过渡效果 */
+.algorithm-visual * {
+    transition: all 0.3s ease;
 }
 </style>

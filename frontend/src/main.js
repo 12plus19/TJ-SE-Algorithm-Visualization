@@ -4,6 +4,9 @@ import 'element-plus/dist/index.css';
 import App from './App.vue';
 import router from './router';
 
+// 添加全局样式
+import './styles/global.css';
+
 const app = createApp(App);
 
 app.use(ElementPlus);

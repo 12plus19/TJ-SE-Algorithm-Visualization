@@ -14,7 +14,7 @@ import ExercisePage from '@/components/Exercise/ExercisePage.vue';
 
 const routes = [
   {
-    path: '/login',
+    path: '/',
     name: 'Login',
     component: LoginPage
   },

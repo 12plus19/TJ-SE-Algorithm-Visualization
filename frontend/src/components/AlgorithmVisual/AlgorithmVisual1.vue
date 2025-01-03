@@ -20,6 +20,7 @@
                     <li v-for="algorithm in computedAlgorithms" :key="algorithm.algorithmName">
                         <p @click="goToAlgorithmPage(algorithm.algorithmName)"><strong>{{ algorithm.algorithmName }}</strong></p>
                     </li>
+                    
                 </ul>
             </aside>
             <section class="visualization-area">
@@ -28,37 +29,10 @@
             <section class="code-area">
                 <!-- 可视化区域 -->
             </section>
-            <section class="rating-area">
-                <label for="rating">评分:</label>
-                <input type="range" id="rating" v-model="rating" min="0" max="100" step="1" style="writing-mode: bt-lr; height: 200px;">
-                <p>当前评分: {{ rating }}</p>
-            </section>
-            <section class="save-button-area">
-                <button @click="saveRating">保存评分</button>
-            </section>
         </main>
         <footer>
             <div class="forum">
-                <h2>论坛</h2>
-                <button class="add-comment-btn" @click="showCommentModal = true">+</button>
-                <modal v-if="showCommentModal" @close="showCommentModal = false">
-                    <template v-slot:header>
-                        <h3>添加评论</h3>
-                    </template>
-                    <template v-slot:body>
-                        <textarea v-model="newComment" placeholder="请输入评论内容"></textarea>
-                    </template>
-                    <template v-slot:footer>
-                        <button @click="submitComment">提交</button>
-                        <button @click="showCommentModal = false">取消</button>
-                    </template>
-                </modal>
-                <ul>
-                    <li v-for="post in forumPosts" :key="post.commentId">
-                        <p><strong>{{ post.content }}</strong></p>
-                        <p>{{ post.commentTime }}</p>
-                    </li>
-                </ul>
+                <AlgorithmForum />
             </div>
         </footer>
     </div>
@@ -68,155 +42,260 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import AlgorithmForum from '@/components/Comment/AlgorithmForum.vue'
+import { setCurrentAlgorithmId } from '@/store/algorithmStore'
 
 export default {
-    name: 'AlgorithmVisual1',
+    components: {
+        AlgorithmForum
+    },
+    name: 'AlgorithmVisual',
     setup() {
         const algorithms = ref([]);
-        const forumPosts = ref([]);
-        const showCommentModal = ref(false);
-        const newComment = ref('');
-        const rating = ref(50);
-        const router = useRouter();
 
         const computedAlgorithms = computed(() => {
             return algorithms.value;
         });
 
-        const fetchForumPosts = async () => {
-            try {
-                const response = await axios.get('http://example.com/api/forum-posts');
-                forumPosts.value = response.data;
-            } catch (error) {
-                console.error('Error fetching forum posts:', error);
-            }
-        };
+        const router = useRouter();
 
-        const submitComment = async () => {
+        const fetchAlgorithms = async () => {
             try {
-                const response = await axios.post('http://example.com/api/forum-posts', {
-                    content: newComment.value,
+                const userToken = localStorage.getItem('userToken');
+                if (!userToken) {
+                    alert('请先登录');
+                    return;
+                }
+                const response = await axios.get('http://121.43.120.166:10020/algorithm/all', {
+                    headers: {
+                        Authorization: userToken,
+                    },
                 });
-                forumPosts.value.push(response.data);
-                newComment.value = '';
-                showCommentModal.value = false;
+                algorithms.value = response.data;
+        
             } catch (error) {
-                console.error('Error submitting comment:', error);
+                console.error('Error fetching algorithms:', error);
             }
-        };
-
-        const saveRating = () => {
-            console.log('当前评分:', rating.value);
-            // 这里可以添加保存评分的逻辑
         };
 
         const goToAlgorithmMessage = () => {
-            router.push('/algorithm-detail');
-        };
-
-        const goToExercise = () => {
-            router.push('/exercise');
-        };
-
-        const goToUserInfo = () => {
-            router.push('/user-info');
+            const algorithmId = '1'; // 示例ID
+            router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
         };
 
         const goToAlgorithmPage = (algorithmName) => {
             let routeName = '';
+            let algorithmId = '1'; // 默认ID
+            
             switch (algorithmName) {
                 case '八皇后问题':
                     routeName = 'AlgorithmVisual1';
+                    algorithmId = '1';
                     break;
                 case '机器学习':
                     routeName = 'AlgorithmVisual2';
+                    algorithmId = '2';
                     break;
                 case 'Prim算法':
                     routeName = 'AlgorithmVisual3';
+                    algorithmId = '3';
                     break;
                 default:
-                    routeName = 'AlgorithmVisual1'; // 默认页面
+                    routeName = 'AlgorithmVisual1';
+                    algorithmId = '1';
             }
+            
+            setCurrentAlgorithmId(algorithmId); // 设置当前算法ID
             router.push({ name: routeName, params: { name: algorithmName } });
         };
 
+        const goToUserInfo = () => {
+            router.push({ name: 'UserInfo' });
+        };
+
+        const goToExercise = () => {
+            const algorithmId = computedAlgorithms.value[0].algorithmId; // 示例ID，实际上应从选中的算法数据中获取
+            const userToken = localStorage.getItem('userToken');
+            if (!userToken) {
+                alert('请先登录');
+                return;
+            }
+            // 跳转到对应算法的练习题页面，并传递 algorithmId 和 userToken
+            router.push({ 
+                name: 'Exercise', 
+                params: { 
+                    algorithmId: algorithmId, 
+                    userToken: userToken 
+                }
+            });
+        };
+
         onMounted(() => {
-            fetchForumPosts();
+            fetchAlgorithms();
         });
 
         return {
-            algorithms,
-            forumPosts,
-            showCommentModal,
-            newComment,
-            rating,
-            computedAlgorithms,
-            fetchForumPosts,
-            submitComment,
-            saveRating,
             goToAlgorithmMessage,
-            goToExercise,
-            goToUserInfo,
+            fetchAlgorithms,
+            computedAlgorithms,
             goToAlgorithmPage,
+            goToUserInfo,
+            goToExercise,
         };
     },
-};
+}
 </script>
+
 
 <style scoped>
 .algorithm-visual {
-    padding: 20px;
     display: flex;
-    flex-wrap: wrap; /* 允许子元素换行 */
-    justify-content: space-between; /* 设置子元素的间距 */
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    overflow-x: hidden;
+    background-color: #f5f7fa;
 }
 
-header, footer {
-    width: 100%;
-    text-align: center;
+header {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 25px;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 .info-btn, .profile-btn {
-    background-color: #409eff;
-    color: #fff;
+    padding: 8px 16px;
+    background-color: #0056b3;
+    color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
 }
 
 .info-btn:hover, .profile-btn:hover {
-    background-color: #66b1ff;
+    background-color: #003d80;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* 侧边栏的样式 */
+main {
+    height: 600px;
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
 .algorithm-list {
-    flex: 1 1 20%; /* 侧边栏占20%的宽度，允许自适应 */
-    padding: 20px;
+    width: 220px;
+    background-color: #e0f7ff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 8px rgba(0, 123, 255, 0.1);
 }
 
-.visualization-area, .code-area, .rating-area, .save-button-area {
-    flex: 1 1 30%; /* 各区域占30%的宽度 */
+.algorithm-list ul {
+    list-style: none;
+    padding: 0;
+}
+
+.algorithm-list li {
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.algorithm-list li p {
+    padding: 10px 15px;
+    background-color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #2c3e50;
+}
+
+.algorithm-list li p:hover {
+    background-color: #007BFF;
+    color: white;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+.visualization-area {
+    flex: 1;
+    background-color: #ffffff;
+    margin: 0;
+    border: 2px solid #007BFF;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 12px rgba(0, 123, 255, 0.1);
+}
+
+.code-area {
+    flex: 1;
+    background-color: #ffffff;
+    margin: 0;
+    border: 2px solid #2c3e50;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+footer {
+    margin-top: 20px;
     padding: 20px;
-    min-width: 200px; /* 设置最小宽度，防止在窄屏下挤压 */
+    background-color: #007BFF;
+    color: white;
+    border-radius: 12px;
+    width: 100%;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .forum {
-    clear: both;
+    background-color: #ffffff;
+    border-radius: 8px;
     padding: 20px;
     width: 100%;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.add-comment-btn {
-    background-color: #409eff;
-    color: #fff;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
+/* 添加响应式设计 */
+@media (max-width: 1200px) {
+    main {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .algorithm-list {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .visualization-area,
+    .code-area {
+        width: 100%;
+        margin: 10px 0;
+    }
 }
 
-.add-comment-btn:hover {
-    background-color: #66b1ff;
+/* 添加平滑滚动 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 添加内容过渡效果 */
+.algorithm-visual * {
+    transition: all 0.3s ease;
 }
 </style>

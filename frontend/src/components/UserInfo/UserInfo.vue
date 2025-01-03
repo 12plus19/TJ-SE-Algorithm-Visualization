@@ -272,48 +272,76 @@ export default {
 .user-info-container {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
-  background-color: #f0f2f5;
-  padding: 20px;
+  background-color: #f5f7fa;
+  padding: 40px 20px;
 }
 
 .user-info-box {
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   padding: 40px;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  border-radius: 12px;
 }
 
-.loading, .error {
+h2 {
   text-align: center;
-  padding: 20px;
+  color: #2c3e50;
+  font-size: 28px;
+  margin-bottom: 40px;
+  font-weight: 600;
 }
 
-.info-section, .progress-section {
+h3 {
+  color: #409eff;
+  font-size: 20px;
+  margin: 30px 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ebeef5;
+}
+
+.info-section {
+  background-color: #f8f9fa;
+  padding: 24px;
+  border-radius: 8px;
   margin-bottom: 30px;
 }
 
 .info-item {
-  margin: 10px 0;
   display: flex;
   align-items: center;
+  margin: 16px 0;
+  font-size: 15px;
 }
 
 .info-item label {
-  width: 80px;
-  font-weight: bold;
+  min-width: 100px;
+  color: #606266;
+  font-weight: 500;
+}
+
+.info-item span {
+  color: #303133;
+  margin-left: 20px;
+}
+
+.progress-section {
+  background-color: #f8f9fa;
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 30px;
 }
 
 .progress-bar {
-  height: 20px;
-  background-color: #f0f0f0;
-  border-radius: 10px;
+  height: 24px;
+  background-color: #e4e7ed;
+  border-radius: 12px;
   overflow: hidden;
   position: relative;
-  margin: 15px 0;
+  margin: 20px 0;
 }
 
 .progress-fill {
@@ -328,28 +356,124 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   color: #fff;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .progress-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.progress-item {
   display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.progress-item label {
+  color: #606266;
+  font-weight: 500;
+  margin-right: 12px;
+}
+
+.progress-item span {
+  color: #409eff;
+  font-weight: 600;
+}
+
+.learning-details {
+  margin-top: 30px;
+}
+
+.learning-details h4 {
+  color: #2c3e50;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.learning-item {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.algorithm-info {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
+.detail-progress-bar {
+  flex: 1;
+  height: 20px;
+  background-color: #e4e7ed;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 20px;
+  position: relative;
+}
+
+.detail-progress-fill {
+  height: 100%;
+  background-color: #409eff;
+  transition: width 0.3s ease;
+}
+
+.detail-progress-text {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 12px;
+}
+
+.learning-status {
+  display: flex;
+  gap: 20px;
+  margin-top: 12px;
+}
+
+.learning-status span {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  background-color: #f0f2f5;
+  color: #909399;
+}
+
+.status-complete {
+  background-color: #f0f9eb !important;
+  color: #67c23a !important;
 }
 
 .change-password-btn {
   width: 100%;
-  padding: 10px;
+  padding: 14px;
   background-color: #409eff;
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-top: 30px;
 }
 
 .change-password-btn:hover {
   background-color: #66b1ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64,158,255,0.3);
 }
 
 .modal-overlay {
@@ -362,42 +486,55 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .modal {
   background: #fff;
   padding: 30px;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 90%;
   max-width: 400px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
 }
 
-.form-group {
-  margin-bottom: 15px;
+.modal h3 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #2c3e50;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
+.modal .form-group {
+  margin-bottom: 20px;
 }
 
-.form-group input {
+.modal input {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.modal input:focus {
+  border-color: #409eff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(64,158,255,0.2);
 }
 
 .modal-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
-.submit-btn, .cancel-btn {
-  padding: 8px 20px;
-  border-radius: 4px;
+.modal-buttons button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .submit-btn {
@@ -406,17 +543,19 @@ export default {
   border: none;
 }
 
-.cancel-btn {
-  background-color: #fff;
-  color: #666;
-  border: 1px solid #ddd;
-}
-
 .submit-btn:hover {
   background-color: #66b1ff;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background-color: #f4f4f5;
+  color: #606266;
+  border: none;
 }
 
 .cancel-btn:hover {
-  background-color: #f5f5f5;
+  background-color: #e9e9eb;
+  transform: translateY(-1px);
 }
 </style>
