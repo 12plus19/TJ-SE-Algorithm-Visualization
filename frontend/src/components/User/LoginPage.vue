@@ -119,8 +119,9 @@ export default {
   min-height: 100vh;
   background-color: #f5f7fa;
   padding: 20px;
+  background-image: url('../../assets/log.jpg'); /* 添加背景图 */
+  background-size: cover;
 }
-
 .login-box {
   width: 380px;
   padding: 40px;

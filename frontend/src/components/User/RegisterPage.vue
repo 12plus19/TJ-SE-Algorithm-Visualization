@@ -213,6 +213,8 @@ export default {
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
   padding: 20px;
+  background-image: url('../../assets/log.jpg'); /* 添加背景图 */
+  background-size: cover;
 }
 
 .register-box {

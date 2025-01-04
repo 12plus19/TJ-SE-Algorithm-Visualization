@@ -160,7 +160,8 @@ export default {
 
         const goToAlgorithmMessage = async() => {
             const algorithmId = '1'; // 示例ID
-            router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
+            // router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
+            window.open('https://www.codeproject.com/Articles/11865/Graphical-Solution-to-Eight-Queen-Problem', '_blank');
             try {
             const progressResponse = await axios.put(
             'http://121.43.120.166:10020/learningProgress/hasRead',
@@ -181,7 +182,6 @@ export default {
             ElMessage.success(progressResponse.data);
             console.log('学习进度更新成功:', progressResponse.data);
           }
-
         } catch (error) {
           console.error('更新进度失败:', error);
           console.log('userId', userId);

@@ -85,7 +85,8 @@ export default {
 
         const goToAlgorithmMessage = async() => {
             const algorithmId = '2'; // 示例ID
-            router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
+            // router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
+            window.open('https://jonathan-hui.medium.com/machine-learning-graphical-model-b68b0c27a749', '_blank');
             try {
             const progressResponse = await axios.put(
             'http://121.43.120.166:10020/learningProgress/hasRead',

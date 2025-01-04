@@ -85,7 +85,7 @@ export default {
 
         const goToAlgorithmMessage = async() => {
             const algorithmId = '2'; // 示例ID
-            router.push({ name: 'AlgorithmDetail', params: { id: algorithmId } });
+            window.open('https://www.w3schools.com/dsa/dsa_algo_mst_prim.php', '_blank');
             try {
             const progressResponse = await axios.put(
             'http://121.43.120.166:10020/learningProgress/hasRead',
