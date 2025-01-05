@@ -11,29 +11,20 @@
         <module name="AlgorithmVisualizer" />
         <module name="AlgorithmRegister" />
       </profile>
-      <profile name="Annotation profile for algorithmGrade" enabled="true">
+      <profile name="Annotation profile for algorithm" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
         </processorPath>
-        <module name="exercise" />
         <module name="code" />
-        <module name="learningProgress" />
-        <module name="algorithmGrade" />
-        <module name="algorithm" />
-      </profile>
-      <profile name="Annotation profile for user" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
-        </processorPath>
-        <module name="user" />
+        <module name="exercise" />
         <module name="comment" />
+        <module name="user" />
+        <module name="learningProgress" />
+        <module name="algorithm" />
+        <module name="algorithmGrade" />
       </profile>
     </annotationProcessing>
   </component>

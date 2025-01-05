@@ -8,12 +8,12 @@
         <option value="$PROJECT_DIR$/AlgorithmRegister/pom.xml" />
         <option value="$PROJECT_DIR$/AlgorithmGateWay/pom.xml" />
         <option value="$PROJECT_DIR$/user/pom.xml" />
-        <option value="$PROJECT_DIR$/algorithm/pom.xml" />
         <option value="$PROJECT_DIR$/exercise/pom.xml" />
         <option value="$PROJECT_DIR$/learningProgress/pom.xml" />
         <option value="$PROJECT_DIR$/code/pom.xml" />
         <option value="$PROJECT_DIR$/algorithmGrade/pom.xml" />
         <option value="$PROJECT_DIR$/comment/pom.xml" />
+        <option value="$PROJECT_DIR$/algorithm/pom.xml" />
       </list>
     </option>
   </component>

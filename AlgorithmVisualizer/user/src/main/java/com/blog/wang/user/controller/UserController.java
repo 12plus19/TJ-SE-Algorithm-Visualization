@@ -6,8 +6,10 @@ import com.blog.wang.user.service.EmailService;
 import com.blog.wang.user.service.UserRepository;
 import com.blog.wang.user.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +31,7 @@ public class UserController {
     private LearningProgressClient learningProgressClient;
 
     @PostMapping("/register")
+    @Transactional
     public ResponseEntity<String> register(@RequestParam String code, @RequestBody User user) {
         // 检查邮箱是否已被使用
         if (userRepository.existsByEmail(user.getEmail())) {
@@ -44,6 +47,7 @@ public class UserController {
         // 调用学习进度微服务创建学习进度元素
         ResponseEntity<String> learningProgressResponse = learningProgressClient.createLearningProgress(user.getUserId());
         if (!learningProgressResponse.getStatusCode().is2xxSuccessful()) {
+            //throw new RuntimeException("用户注册成功，但学习进度元素创建失败");
             return ResponseEntity.status(500).body("用户注册成功，但学习进度元素创建失败");
         }
         return ResponseEntity.ok("用户注册成功");
@@ -73,7 +77,7 @@ public class UserController {
     }
     // 登录接口
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
         Optional<User> userOptional = userRepository.findByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -82,7 +86,14 @@ public class UserController {
                 Map<String, Object> claims = Map.of("userId", user.getUserId()); // 你可以根据需要添加更多的声明
                 String jwt = JwtUtils.generateJwt(claims);
                 // 返回JWT和管理员信息
-                return ResponseEntity.ok(jwt);
+                // 设置JWT到响应头（可选）
+                HttpHeaders headers = new HttpHeaders();
+                headers.set("Authorization", jwt);
+
+                // 返回用户实体和JWT
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(user);
             } else {
                 return ResponseEntity.badRequest().body("密码错误");
             }
