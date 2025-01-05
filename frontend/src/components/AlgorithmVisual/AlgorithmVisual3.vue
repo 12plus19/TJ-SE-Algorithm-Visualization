@@ -84,7 +84,7 @@ export default {
         };
 
         const goToAlgorithmMessage = async() => {
-            const algorithmId = '2'; // 示例ID
+            const algorithmId = '3'; // 示例ID
             window.open('https://www.w3schools.com/dsa/dsa_algo_mst_prim.php', '_blank');
             try {
             const progressResponse = await axios.put(
