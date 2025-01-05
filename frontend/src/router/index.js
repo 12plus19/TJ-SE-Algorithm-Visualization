@@ -36,7 +36,8 @@ const routes = [
   {
     path: '/algorithm-visual1',
     name: 'AlgorithmVisual1',
-    component: AlgorithmVisual1
+    component: AlgorithmVisual1,
+    props: true,
   },
   {
     path: '/algorithm-visual2',
@@ -47,7 +48,8 @@ const routes = [
   {
     path: '/algorithm-visual3',
     name: 'AlgorithmVisual3',
-    component: AlgorithmVisual3
+    component: AlgorithmVisual3,
+    props: true,
   },
   {
     path: '/algorithm-message',

@@ -4,13 +4,41 @@
             <div style="display: flex; align-items: center; width: 100%;">
                 <div style="flex: 1;">
                     <button class="info-btn" style="padding: 10px 20px; margin-right: 10px;" @click="goToAlgorithmMessage()"><strong>详细信息</strong></button>
-                    <button class="info-btn" style="padding: 10px 20px;" @click="goToExercise()"><strong>练习题</strong></button>
+                    <button class="info-btn" style="padding: 10px 20px; margin-right: 10px;" @click="goToExercise()"><strong>练习题</strong></button>
+                    <button class="info-btn" style="padding: 10px 20px; margin-right: 10px;" @click="showHistoryModal = true"><strong>历史记录</strong></button>
                 </div>
+                <!-- 历史记录弹窗 -->
+<div class="modal-overlay" v-if="showHistoryModal" @click.self="showHistoryModal = false">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>代码历史记录</h3>
+            <button class="close-btn" @click="showHistoryModal = false">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div v-if="historyCodes.length > 0" class="history-list">
+                <div v-for="record in historyCodes" 
+                     :key="record.codeId" 
+                     class="history-item"
+                     @click="loadHistoryCode(record)">
+                    <div class="history-info">
+                        <span class="code-id">记录ID: {{ record.codeId }}</span>
+                        <span class="save-time">保存时间: {{ formatTime(record.saveTime) }}</span>
+                    </div>
+                </div>
+            </div>
+            <div v-else class="empty-message">
+                暂无历史记录
+            </div>
+        </div>
+    </div>
+</div>
+
                 <div style="flex: 2; text-align: center;">
                     <h1>算法可视化平台</h1>
                 </div>
                 <div style="flex: 1; text-align: right;">
-                    <button class="profile-btn" style="padding: 10px 20px;" @click="goToUserInfo()"><strong>个人信息</strong></button>
+                    <button class="profile-btn" style="padding: 10px 20px; margin-right: 10px;" @click="goToUserInfo()"><strong>个人信息</strong></button>
+                    <button class="profile-btn" style="padding: 10px 20px;" @click="saveCode()"><strong>保存代码</strong></button>
                 </div>
             </div>
         </header>
@@ -20,33 +48,53 @@
                     <li v-for="algorithm in computedAlgorithms" :key="algorithm.algorithmName">
                         <p @click="goToAlgorithmPage(algorithm.algorithmName)"><strong>{{ algorithm.algorithmName }}</strong></p>
                     </li>
-                    
                 </ul>
             </aside>
             <section class="visualization-area">
-                <!-- 可视化区域 -->
-                <div class="board">
-                    <div v-for="(row, y) in board" :key="`row-${y}`" class="row">
-                        <div v-for="(cell, x) in row" :key="`cell-${x}-${y}`" class="cell"
-                            :class="{ selected: isSelected(x, y) }" :style="{ backgroundColor: getCellColor(x, y) }">
-                        </div>
-                    </div>
-                    <div class="queens">
-                        <transition-group name="queen" tag="div">
-                            <div v-for="(queen, i) in queens" :key="`queen-${i}`" class="queen"
-                                :class="{ 'visible': queenVisibility[i] }"
-                                :style="{ left: `${queen[1] * 50}px`, top: `${queen[0] * 50}px` }">
-                                <div class="queen-image"></div>
-                            </div>
-                        </transition-group>
+                
+                <div class="chessboard" :style="boardStyle">
+    <div v-for="(row, i) in board" :key="i" class="row">
+        <div v-for="(cell, j) in row" 
+             :key="`${i}-${j}`" 
+             :class="['cell', ((i + j) % 2 === 0) ? 'white' : 'black']">
+            <div v-if="cell === 1" 
+                 class="queen" 
+                 :class="{ 'queen-animated': isAnimating && lastPlaced.row === i && lastPlaced.col === j }">
+                ♕
+            </div>
+        </div>
+    </div>
+</div>
+                <div class="control-panel">
+                    <button @click="runCode" class="run-btn" :disabled="isAnimating">运行代码</button>
+                    <button @click="resetBoard" class="reset-btn" :disabled="isAnimating">重置棋盘</button>
+                    <button @click="stopAnimation" class="stop-btn" v-if="isAnimating">停止动画</button>
+                    <div class="speed-control">
+                        <label>动画速度：</label>
+                        <input type="range" v-model.number="animationSpeed" min="100" max="2000" step="100">
+                        <span>{{ animationSpeed }}ms</span>
                     </div>
                 </div>
-                <button class="QueenButton" @click="solveNQueens">Solve N Queens</button>
             </section>
             <section class="code-area">
-
-                <div ref="luaEditor" class="lua-editor">
-                    
+                <div class="editor-container">
+                    <div class="editor-header" style = "white-space: pre-wrap">
+                        <span>代码编辑器</span>
+                    </div>
+                    <textarea
+                        v-model="code"
+                        class="code-editor"
+                        spellcheck="false"
+                        @input="handleInput"
+                    ></textarea>
+                </div>
+                <div class="output-container">
+                    <div class="output-header">
+                        <span>输出结果</span>
+                    </div>
+                    <div class="output-content">
+                        {{ output }}
+                    </div>
                 </div>
             </section>
         </main>
@@ -59,68 +107,12 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, watch} from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import AlgorithmForum from '@/components/Comment/AlgorithmForum.vue'
-import { setCurrentAlgorithmId } from '@/store/algorithmStore'
-import { ElMessage } from 'element-plus';
-
-//llbuff
-
-import ace from 'ace-builds'
-import 'ace-builds/css/ace.css'
-//import 'ace-builds/webpack-resolver' // 全量导入
-// #endregion
-// #region 代码提示
-import 'ace-builds/src-noconflict/ext-language_tools'
-// #endregion
-// #region 代码校验
-ace.config.setModuleUrl(
- 'ace/mode/base_worker',
- require('file-loader?esModule=false!ace-builds/src-noconflict/worker-base.js')
-)
-ace.config.setModuleUrl(
- 'ace/mode/lua_worker',
- require('file-loader?esModule=false!ace-builds/src-noconflict/worker-lua.js')
-)
-// #endregion
-// #region 主题
-import 'ace-builds/src-noconflict/theme-chrome'
-// #endregion
-// #region 其他功能
-import 'ace-builds/src-noconflict/ext-searchbox'
-import 'ace-builds/src-noconflict/ext-keybinding_menu'
-import 'ace-builds/src-noconflict/ext-settings_menu'
-// 定义辅助函数
-function isSelected(x, y, selectedCell) {
-    return selectedCell.value[0] === y && selectedCell.value[1] === x;
-}
-
-function getCellColor(x, y, selectedCell) {
-    if (isSelected(x, y, selectedCell)) {
-        return '#ffa';
-    }
-    return (x + y) % 2 === 0 ? '#ccc' : '#fff';
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-const currentQueen = ref(0);
-async function solveNQueens(N, board, queens, selectedCell, nQ, toContinue, queenVisibility,sleepTime) {
-    // Reset the board, queens, and currentQueen  
-    currentQueen.value = N;
-    await sleep(sleepTime.value+500);
-    currentQueen.value = 0;
-    board.value = Array.from({ length: N }, () => Array(N).fill(0));
-    queens.value = Array.from({ length: N }, () => [-1, -1]);
-    selectedCell.value = [-1, -1];
-    toContinue.value = true;
-    queenVisibility.value = Array.from({ length: N }, () => false);
-    await nQ(currentQueen.value);
-}
-
+import AlgorithmForum from '@/components/Comment/AlgorithmForum.vue';
+import { setCurrentAlgorithmId } from '@/store/algorithmStore';
+import { ElMessage } from 'element-plus'; 
 export default {
     components: {
         AlgorithmForum
@@ -128,15 +120,259 @@ export default {
     name: 'AlgorithmVisual',
     setup() {
         const algorithms = ref([]);
+        const board = ref([]);
+        const isAnimating = ref(false);
+        const animationSpeed = ref(500);
+        const lastPlaced = ref({ row: -1, col: -1 });
+        const animationTimeout = ref(null);
+        const output = ref('');
+        const animationSteps = ref([]);
         const userId = localStorage.getItem('userId');
         const userToken = localStorage.getItem('userToken');
         const submitting = ref(false);
 
+
+        // 默认代码模板
+        const code = ref(`// 可自定义皇后数量的N皇后问题解法
+function solveNQueens(n) {
+    const board = Array(n).fill().map(() => Array(n).fill(0));
+    const solutions = [];
+    
+    function isValid(row, col) {
+        // 检查同一列
+        for (let i = 0; i < row; i++) {
+            if (board[i][col] === 1) return false;
+        }
+        
+        // 检查左上对角线
+        for (let i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if (board[i][j] === 1) return false;
+        }
+        
+        // 检查右上对角线
+        for (let i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+            if (board[i][j] === 1) return false;
+        }
+        
+        return true;
+    }
+    
+    function backtrack(row) {
+        if (row === n) {
+            solutions.push(board.map(row => [...row]));
+            return;
+        }
+        
+        for (let col = 0; col < n; col++) {
+            if (isValid(row, col)) {
+                board[row][col] = 1;
+                // 添加暂停点，用于动画展示
+                if (window.addAnimationStep) {
+                    window.addAnimationStep(board.map(row => [...row]), row, col);
+                }
+                backtrack(row + 1);
+                board[row][col] = 0;
+                // 添加回溯的暂停点
+                if (window.addAnimationStep) {
+                    window.addAnimationStep(board.map(row => [...row]), row, col);
+                }
+            }
+        }
+    }
+    
+    backtrack(0);
+    return solutions;
+}
+
+// 运行N皇后问题
+const n = 8; // 使用当前设置的皇后数量
+const solutions = solveNQueens(n);
+return solutions[0]; // 返回第一个解
+`);
         const computedAlgorithms = computed(() => {
             return algorithms.value;
         });
 
+        const showHistoryModal = ref(false)
+        const historyCodes = ref([])
+
+        // 格式化时间
+const formatTime = (timeStr) => {
+  return new Date(timeStr).toLocaleString()
+}
+
+// 加载选中的历史记录
+const loadHistoryCode = (record) => {
+  code.value = record.content
+  showHistoryModal.value = false
+}
+
+        const saveCode = async () => { 
+            const algorithmId = '1';
+            const userId = localStorage.getItem('userId');
+            const userToken = localStorage.getItem('userToken');
+            try {
+                const codeCreateResponse = await axios.post(
+                    'http://121.43.120.166:10020/code',
+                    {
+                        content:code.value,
+                    },
+                    {
+                        params: {
+                            userId: userId,
+                            algorithmId: algorithmId
+                        },
+                        headers: {
+                            Authorization: userToken,
+                        },
+
+                    }
+                );
+                if (codeCreateResponse.status === 200) {
+                    alert('代码保存成功');
+                }
+            }catch (error) {
+                console.error('Error saving code:', error);
+            }
+        }
+
+        const getNewCode = async () => {
+            const myCodes=ref([]);
+            const algorithmId = '1';
+            const userId = localStorage.getItem('userId');
+            const userToken = localStorage.getItem('userToken');
+            const newCode=ref('');
+            try {
+                const codeResponse = await axios.get(
+                    'http://121.43.120.166:10020/code/codes',
+                    {
+                        params: {
+                            userId: userId,
+                            algorithmId: algorithmId
+                        },
+                        headers: {
+                            Authorization: userToken,
+                        },
+                    }
+                );
+                if (codeResponse.status === 200) {
+                    myCodes.value = codeResponse.data;
+                    console.log('获取代码成功:', myCodes.value);
+                    historyCodes.value=myCodes.value;
+                    // 找到 saveTime 最大的代码项
+                    const latestCode = myCodes.value.reduce((latest, current) => {
+                        console.log(current.saveTime, latest.saveTime)
+                        return (new Date(current.saveTime) > new Date(latest.saveTime)) ? current : latest;
+                    }, myCodes.value[0]);
+
+                    console.log('最新代码项:', latestCode);
+
+                    // 将 newCode 设置为最新的代码内容
+                    newCode.value = latestCode.content || '';
+                    if (newCode.value === '') {
+                        newCode.value = code.value;
+                    }
+
+                    newCode.value = newCode.value.slice(12, -2);
+                    const newcode = newcode.replace(/\\n/g, '\n');
+                    console.log('最新代码:', newCode.value);
+
+                    // 更新编辑器内容
+                    code.value = newCode.value;
+                }
+            } catch (error) {
+                console.error('Error fetching codes:', error);
+            }
+        }
+
+        const getBoardSizeFromCode = () => {
+            // 从代码中解析n的值
+            const match = code.value.match(/const\s+n\s*=\s*(\d+)/);
+            return match ? parseInt(match[1]) : 8; // 默认值为8
+        };
+
+        const boardStyle = computed(() => {
+            const currentSize = getBoardSizeFromCode();
+            const cellSize = Math.floor(400 / currentSize);
+            const totalSize = cellSize * currentSize;
+            
+            return {
+                width: totalSize + 'px',
+                height: totalSize + 'px',
+                gridTemplate: `repeat(${currentSize}, 1fr) / repeat(${currentSize}, 1fr)`,
+                fontSize: `${Math.floor(cellSize * 0.6)}px`
+            }
+        });
+
         const router = useRouter();
+
+        watch(code, () => {
+            resetBoard(); // 当代码改变时重置棋盘
+        });
+
+        const handleInput = (e) => {
+            code.value = e.target.value;
+        };
+
+        const resetBoard = () => {
+            const currentSize = getBoardSizeFromCode();
+            board.value = Array(currentSize).fill(null).map(() => Array(currentSize).fill(0));
+            output.value = '';
+            isAnimating.value = false;
+            if (animationTimeout.value) {
+                clearTimeout(animationTimeout.value);
+            }
+        };
+
+        const stopAnimation = () => {
+            isAnimating.value = false;
+            if (animationTimeout.value) {
+                clearTimeout(animationTimeout.value);
+            }
+        };
+
+        const runCode = async () => {
+            try {
+                resetBoard();
+                animationSteps.value = [];
+                isAnimating.value = true;
+
+                // 添加动画步骤收集函数
+                window.addAnimationStep = (boardState, row, col) => {
+                    animationSteps.value.push({
+                        board: boardState,
+                        row: row,
+                        col: col
+                    });
+                };
+
+                // 执行代码
+                new Function(code.value)();
+
+                // 开始动画展示
+                let stepIndex = 0;
+                const animate = () => {
+                    if (!isAnimating.value || stepIndex >= animationSteps.value.length) {
+                        isAnimating.value = false;
+                        return;
+                    }
+
+                    const step = animationSteps.value[stepIndex];
+                    board.value = step.board;
+                    lastPlaced.value = { row: step.row, col: step.col };
+
+                    stepIndex++;
+                    animationTimeout.value = setTimeout(animate, animationSpeed.value);
+                };
+
+                animate();
+                output.value = '正在运行动画展示...';
+
+            } catch (error) {
+                output.value = `代码执行错误：${error.message}`;
+                isAnimating.value = false;
+            }
+        };
 
         const fetchAlgorithms = async () => {
             submitting.value = true;
@@ -152,7 +388,6 @@ export default {
                     },
                 });
                 algorithms.value = response.data;
-        
             } catch (error) {
                 console.error('Error fetching algorithms:', error);
             }
@@ -199,7 +434,7 @@ export default {
 
         const goToAlgorithmPage = (algorithmName) => {
             let routeName = '';
-            let algorithmId = '1'; // 默认ID
+            let algorithmId = '1';
             
             switch (algorithmName) {
                 case '八皇后问题':
@@ -215,17 +450,18 @@ export default {
                     algorithmId = '3';
                     break;
                 default:
-                    routeName = 'AlgorithmVisual2';
+                    routeName = 'AlgorithmVisual1';
                     algorithmId = '1';
             }
             
-            setCurrentAlgorithmId(algorithmId); // 设置当前算法ID
+            setCurrentAlgorithmId(algorithmId);
             router.push({ name: routeName, params: { name: algorithmName } });
         };
 
         const goToUserInfo = () => {
             router.push({ name: 'UserInfo' });
         };
+
 
         const goToExercise = () => {
             const algorithmId = computedAlgorithms.value[0].algorithmId; // 示例ID，实际上应从选中的算法数据中获取
@@ -247,260 +483,37 @@ export default {
 
         onMounted(() => {
             fetchAlgorithms();
+            resetBoard();
+            getNewCode();
         });
 
-        //llbuff
-        let setupFunctionSource = `  
-const N = 5
-const board = ref(Array.from({ length: N }, () => Array(N).fill(0)))
-const queens = ref(Array.from({ length: N }, () => [-1, -1]))
-const selectedCell = ref([-1, -1])
-let currentQueen = 0
-const toContinue = ref(true)
-const sleepTime = ref(100)
-
-function validState(row, col, currentQueen) {
-    // Check if the current position is valid for the queen
-    for (let i = 0; i < currentQueen; i++) {
-        const [queenRow, queenCol] = queens.value[i]
-        if (queenRow === row || queenCol === col || Math.abs(queenRow - row) === Math.abs(queenCol - col)) {
-            return false
-        }
-    }
-    return true
-}
-
-async function nQ(currentQueen) {
-    if (currentQueen === 0) {
-        board.value = Array.from({ length: N }, () => Array(N).fill(0));
-        queens.value = Array.from({ length: N }, () => [-1, -1]);
-        selectedCell.value = [-1, -1];
-        toContinue.value = true;
-    }
-    if (currentQueen >= N) {
-        return
-    }
-
-    for (let row = 0; row < N; row++) {
-        queens.value[currentQueen] = [row, currentQueen]
-        await new Promise((resolve) => setTimeout(resolve, sleepTime.value))
-        if (validState(row, currentQueen, currentQueen)) {
-            queens.value[currentQueen] = [row, currentQueen]
-            selectedCell.value = [row, currentQueen]
-
-            // Update the board to show the current queen
-            board.value[row][currentQueen] = 1
-            console.log("坐标：", row, currentQueen)
-
-            await new Promise((resolve) => setTimeout(resolve, sleepTime.value))
-            if (currentQueen === N - 1) {
-                console.log("找到了！", queens.value)
-                toContinue.value = false
-                return
-            }
-            currentQueen++
-            await nQ(currentQueen)
-            if (toContinue.value === false) {
-                return
-            }
-            // If the current position is not valid, reset the selected cell and board
-            selectedCell.value = [-1, -1]
-            board.value[row][currentQueen] = 0
-            currentQueen--
-        }
-    }
-}
-
-return {
-    N,
-    board,
-    queens,
-    nQ,
-    currentQueen,
-    selectedCell,
-    validState,
-    toContinue,
-    sleepTime,
-}
-`
-        const setupCode = ref(setupFunctionSource)
-        
-
-        let setup = null
-        function defineSetupFunction() {
-            console.log(setupCode.value)
-            setup = new Function(
-                'ref',
-                `  
-          ${setupCode.value}  
-         
-        `
-            )(ref)
-            return setup;
-        }
-        const toReturn = defineSetupFunction();
-        const updateSetupFunction = (code) => {
-            setupCode.value = code
-            setupFunctionSource = code
-            const newSetup = defineSetupFunction();
-            // 更新 toReturn 的属性  
-            Object.assign(toReturn, newSetup);
-            Object.assign(setup, newSetup);
-            // 在 Vue 组件中刷新当前路由  
-            router.go();
-            // 刷新当前页面  
-            location.reload();
-        }  
-        const queenVisibility = ref(Array.from({ length: toReturn.N }, () => false)); 
-        // 创建 updateQueenVisibility 方法
-        function updateQueenVisibility(index,N) {
-            if (index >= 0 && index < N) {
-                queenVisibility.value[index] = true;
-            }
-        }
-        // 使用 watch 来监视 queens 的变化
-        watch(toReturn.queens, (newQueens, ) => {
-            newQueens.forEach((queen, index) => {
-                // 如果新的皇后位置不是 [-1, -1] 并且旧的位置是 [-1, -1] 或者位置有变化，则更新 visibility
-                if (queen[0] !== -1 && queen[1] !== -1) {
-                    updateQueenVisibility(index, toReturn.N);
-
-                }
-            });
-        }, { deep: true });
-
-        //llbuff结束
-
-
         return {
+            formatTime,
+            loadHistoryCode,
+            showHistoryModal,
+            getNewCode,
+            saveCode,
             goToAlgorithmMessage,
             fetchAlgorithms,
             computedAlgorithms,
             goToAlgorithmPage,
             goToUserInfo,
             goToExercise,
-
-            //llbuff
-            N: toReturn.N,
-            board: toReturn.board,
-            queens: toReturn.queens,
-            nQ: toReturn.nQ,
-            validState: toReturn.validState,
-            toContinue: toReturn.toContinue,
-            sleepTime: toReturn.sleepTime,
-
-            setupCode,
-            updateSetupFunction,  
-
-            isSelected: (x, y) => isSelected(x, y, toReturn.selectedCell),
-            getCellColor: (x, y) => getCellColor(x, y, toReturn.selectedCell),
-            solveNQueens: () => solveNQueens(toReturn.N, toReturn.board, toReturn.queens, toReturn.selectedCell, toReturn.nQ, toReturn.toContinue, queenVisibility, toReturn.sleepTime),
-            
-            queenVisibility
-            //llbuff结束
+            code,
+            output,
+            board,
+            handleInput,
+            runCode,
+            resetBoard,
+            isAnimating,
+            animationSpeed,
+            lastPlaced,
+            stopAnimation,
+            boardStyle
         };
     },
-
-    //llbuff
-    data() {
-    // 使用 JSDoc 注释来类型化 editorOptions
-    /** @type {import('ace-builds').Ace.EditorOptions} */
-    const editorOptions = {
-      mode: 'ace/mode/lua',
-      theme: 'ace/theme/chrome',
-      tabSize: 2,
-      selectionStyle: 'text',
-      dragEnabled: true,
-      useWorker: true,
-      enableAutoIndent: true,
-      showLineNumbers: true,
-      useSoftTabs: true,
-      fadeFoldWidgets: true,
-      showPrintMargin: false,
-      highlightActiveLine: true,
-      highlightSelectedWord: true,
-      autoScrollEditorIntoView: true,
-      copyWithEmptySelection: true,
-      enableLiveAutocompletion: true,
-      enableSnippets: true,
-    };
-    return {
-      content: this.value || '',
-      editorOptions, // 将 editorOptions 作为数据属性返回
-      editor: null,  // 初始化编辑器实例为 null
-    };
-  },
-  computed: {
-    /** @return {import('ace-builds').Ace.Editor} */
-    _editor() {
-      return this.editor
-    }
-  },
-  watch: {
-    value(nval) {
-      this.syncContent(nval)
-    },
-    options(nval) {
-      this.syncOptions(nval)
-    }
-  },
-  // #endregion
-  
-  // #region 生命周期
-  created() {},
-  mounted() {
-    this.initEditor()
-  },
-  beforeUnmount() {
-    this._editor.destroy()
-  },
-  // #endregion
-
-  methods: {
-    /**
-     * 同步内容
-     */
-      initEditor() {
-          if (this.editor) {
-              this.editor.destroy();
-          }
-
-          // 确保 DOM 元素存在并且已经渲染
-          this.$nextTick(() => {
-              this.editor = ace.edit(this.$refs.luaEditor, this.editorOptions);
-
-              // 设置初始内容
-              this.editor.setValue(this.setupCode, 1); // 第二个参数 1 表示不触发 change 事件
-
-              // 监听编辑器值的变化
-              this.editor.session.on('change', () => {
-                  this.content = this.editor.getValue();
-                  this.$emit('input', this.content);
-              });
-          });
-      },
-    syncContent(value = this.value) {
-      if (this.content != value) {
-        this._editor?.setValue(value, 1)
-      }
-    },
-    /**
-     * 同步配置
-     */
-    syncOptions(option = this.option) {
-      let keys = Object.keys(option)
-      for (let key of keys) {
-        // 禁止修改固定的option
-        if (key in this.editorOptions) continue
-        this._editor?.setOption(key, option[key])
-      }
-    }
-  }
-  //llbuff结束
-};
+}
 </script>
-
-
 <style scoped>
 .algorithm-visual {
     display: flex;
@@ -542,7 +555,7 @@ header {
 }
 
 main {
-    height: 600px;
+    height: 700px;
     display: flex;
     gap: 20px;
     width: 100%;
@@ -586,7 +599,7 @@ main {
     box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
 }
 
-/* .visualization-area {
+.visualization-area {
     flex: 1;
     background-color: #ffffff;
     margin: 0;
@@ -594,20 +607,11 @@ main {
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 2px 12px rgba(0, 123, 255, 0.1);
-} */
-.visualization-area {
-    flex: 1;
-    background-color: #ffffff;
-    margin: 10px;
-    border: 1px solid #007BFF; /* Blue border */
-    border-radius: 10px; /* Rounded corners */
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* 垂直方向底部对齐 */
-    align-items: center; /* 水平方向居中对齐 */
-    padding-bottom: 20px; /* 底部内边距 */
+    justify-content: center;
+    align-items: center;
 }
-
 
 .code-area {
     flex: 1;
@@ -617,11 +621,193 @@ main {
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
-.lua-editor {
-  width: 100%;
-  height: 100%;
+.editor-container {
+    height: 120%;
+    margin-bottom: 10px;
+}
+
+.editor-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 8px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.code-editor {
+    width: 100%;
+    height: calc(100% - 36px);
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid #ddd;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    resize: none;
+    background-color: #1e1e1e;
+    color: #d4d4d4;
+}
+
+.output-container {
+    height: 40%;
+}
+
+.output-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 8px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.output-content {
+    height: calc(100% - 36px);
+    padding: 10px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+}
+
+.chessboard {
+    border: 2px solid #2c3e50;
+  margin: 20px auto;
+  background-color: #b58863;
+  display: grid;
+  max-width: 100%; /* 确保在小屏幕上不会溢出 */
+  max-height: 100vh; /* 确保不会超过视口高度 */
+}
+
+.cell {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.white {
+    background-color: #f0d9b5;
+}
+
+.black {
+    background-color: #b58863;
+}
+
+.queen {
+  color: #000;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+  /* 删除固定的font-size，使用计算后的大小 */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@media (max-width: 1200px) {
+  .chessboard {
+    /* 在小屏幕上动态调整大小 */
+    width: min(300px, 90vw) !important;
+    height: min(300px, 90vw) !important;
+  }
+  
+  .queen {
+    /* 在小屏幕上相应调整皇后大小 */
+    font-size: calc(min(300px, 90vw) / (var(--board-size, 8) * 1.5)) !important;
+  }
+}
+
+@keyframes queenPlaced {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.control-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.size-control {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.size-control input {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.speed-control input {
+    width: 150px;
+}
+
+.run-btn, .reset-btn, .stop-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.run-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.reset-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.stop-btn {
+    background-color: #ff9800;
+    color: white;
+}
+
+.run-btn:hover, .reset-btn:hover, .stop-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.run-btn:disabled, .reset-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 footer {
@@ -642,7 +828,6 @@ footer {
     box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 添加响应式设计 */
 @media (max-width: 1200px) {
     main {
         flex-direction: column;
@@ -659,97 +844,114 @@ footer {
         width: 100%;
         margin: 10px 0;
     }
+
+    .chessboard {
+        width: 300px;
+        height: 300px;
+    }
 }
 
-/* 添加平滑滚动 */
 html {
     scroll-behavior: smooth;
 }
 
-/* 添加内容过渡效果 */
 .algorithm-visual * {
     transition: all 0.3s ease;
 }
 
-.board {  
-    display: flex; 
-    flex-wrap: wrap; 
-    width: 500px; 
-    height: 500px; 
-    position: relative; 
-    margin: auto; 
-    margin-top: 10px;
-    z-index: 100000;
-    background-color: #f0f4b4; /* 背景色 */  
-}  
-
-.cell {  
-  width: 50px;  
-  height: 50px;  
-}  
-
-.selected {  
-  background-color: #ffa !important;  
-}  
-
-.queen {  
-  position: absolute;  
-  display:flex;
-  width: 50px;  
-  height: 50px;  
-  left: 0px; /* 如果(1,1)是第一格则为0px，否则为50px */
-  top: 0px;  /* 如果(1,1)是第一格则为0px，否则为50px */
-  visibility: hidden;
+.history-btn {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px;
 }
 
-.queen.visible {
-    visibility: visible;
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.circle {  
-  display:flex;
-  width: 40px;  
-  height: 40px;  
-  border-radius: 50%;  
-  background-color: red;  
-  position: relative;  
-  top: 5px;  
-  left: 5px;  
-}  
-
-.queen-image {  
-  position: absolute;
-  top: 50%;                       /* 垂直居中 */
-  left: 50%;                      /* 水平居中 */
-  transform: translate(-50%, -50%);
+.modal-content {
+  background-color: white;
+  border-radius: 8px;
   width: 80%;
-  height: 80%;  
-  background-image: url('../../assets/queen2.png');  
-  background-size: cover;  
-  background-position: center;
+  max-width: 600px;
+  max-height: 80vh;
 }
 
-.QueenButton {
-    margin-top: 20px; /* 顶部外边距 */
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.modal-header {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.QueenButton:hover {
-    background-color: #0056b3;
+.modal-body {
+  padding: 15px;
+  overflow-y: auto;
 }
 
-.QueenButton:focus {
-  outline: none; /* 去除按下时的边框 */
+.history-item {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.QueenButton:active {
-  background-color: #004085; /* 按下时的背景色 */
-  transform: scale(1); /* 按下时恢复原大小 */
+.history-item:hover {
+  background-color: #f5f5f5;
 }
 
+.history-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-id {
+  font-weight: bold;
+  color: #333;
+}
+
+.save-time {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.history-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .history-info {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
 </style>
